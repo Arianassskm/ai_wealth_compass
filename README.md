@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI 反向财富管理系统
 
-## Getting Started
+这是一个基于 Next.js 构建的 AI 反向财富管理系统,旨在帮助用户更好地管理个人财务。
 
-First, run the development server:
+## 主要功能
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 财富管理
+- 投资分析
+- 财富开发
+- 职业发展
+- 贷款分析
+- 消费决策
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 智能助手
+- 投资神话助手
+- 财富开发助手
+- 贷款分析助手
+- 职业发展助手
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 数据分析
+- 可支配收入分析
+- 月度趋势图表
+- 重要里程碑追踪
+- 财务状况评估
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 技术栈
 
-## Learn More
+- Next.js 14
+- TypeScript
+- Tailwind CSS
+- Framer Motion
+- Shadcn UI
+- Lucide Icons
 
-To learn more about Next.js, take a look at the following resources:
+## 开始使用
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. 安装依赖: npm install
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. 运行开发服务器: npm run dev
 
-## Deploy on Vercel
+3. 在浏览器中打开 [http://localhost:3000](http://localhost:3000)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 项目结构
+frontend/
+├── app/ # 页面组件
+│ ├── page.tsx # 首页
+│ ├── wealth-development/# 财富开发
+│ ├── investment-analysis/# 投资分析
+│ ├── credit-analysis/ # 贷款分析
+│ └── career-development/# 职业发展
+├── components/ # 可复用组件
+├── public/ # 静态资源
+└── styles/ # 样式文件
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 主要特性
+
+- 响应式设计
+- 实时数据分析
+- AI 智能建议
+- 用户友好界面
+- 安全的数据存储
+- 个性化推荐
+
+## 贡献指南
+
+1. Fork 项目
+2. 创建特性分支
+3. 提交更改
+4. 推送到分支
+5. 提交 Pull Request
+
+## 许可证
+
+[MIT](https://choosealicense.com/licenses/mit/)

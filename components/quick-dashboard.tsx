@@ -98,8 +98,8 @@ export function QuickDashboard({ isOpen, onClose }: QuickDashboardProps) {
               <Button variant="outline" className="w-full justify-start h-10 sm:h-12 text-base sm:text-lg" onClick={() => router.push('/budget-settings')}>
                 预算设置
               </Button>
-              <Button variant="outline" className="w-full justify-start h-10 sm:h-12 text-base sm:text-lg" onClick={() => router.push('/investment-portfolio')}>
-                投资组合
+              <Button variant="outline" className="w-full justify-start h-10 sm:h-12 text-base sm:text-lg" onClick={() => router.push('/wealth-composition')}>
+                财富构成
               </Button>
               <Button variant="outline" className="w-full justify-start h-10 sm:h-12 text-base sm:text-lg" onClick={() => router.push('/wealth-management')}>
                 反向财富管理

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
@@ -9,7 +9,6 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, PlusCircle, Edit2, Save, PieChart, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { PieChart as RechartsChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
-import { BottomNav } from "@/components/bottom-nav"
 
 type Account = {
   id: string;
@@ -82,11 +81,29 @@ export default function WealthManagementPage() {
     return status.join(" ");
   };
 
+  useEffect(() => {
+    const fetchAIEstimation = async () => {
+      try {
+        const response = await fetch('/api/v1/user/profile')
+        const data = await response.json()
+        
+        if (data.ai_evaluation_details?.wealth_management) {
+          setAccounts(data.ai_evaluation_details.wealth_management)
+        }
+      } catch (error) {
+        console.error('Error fetching AI estimation:', error)
+      }
+    }
+
+    fetchAIEstimation()
+  }, [])
+
   return (
     <AssistantLayout
       title="反向财富管理"
       description="通过分类管理不同账户来掌控您的财富"
       avatarSrc="/placeholder.svg"
+      onBack={() => router.push('/')}
       sections={[
         {
           id: 'wealth-overview',
@@ -271,7 +288,6 @@ export default function WealthManagementPage() {
           返回主页
         </Button>
       </motion.div>
-      <BottomNav activePage="home" />
     </AssistantLayout>
   )
 }

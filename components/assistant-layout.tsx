@@ -22,6 +22,7 @@ interface AssistantLayoutProps {
   avatarSrc: string
   sections: Section[]
   children?: React.ReactNode
+  onBack: () => void;
 }
 
 export function AssistantLayout({
@@ -29,7 +30,8 @@ export function AssistantLayout({
   description,
   avatarSrc,
   sections,
-  children
+  children,
+  onBack
 }: AssistantLayoutProps) {
   const router = useRouter()
   const [openSections, setOpenSections] = useState<string[]>(
@@ -53,10 +55,11 @@ export function AssistantLayout({
         <div className="max-w-xl mx-auto px-4 py-4 flex items-center justify-between">
           <Button
             variant="ghost"
-            className="p-2 text-gray-600 hover:bg-gray-100"
-            onClick={() => router.push('/decisions')}
+            size="icon"
+            className="mr-2"
+            onClick={onBack}
           >
-            <ArrowLeft className="w-6 h-6" />
+            <ArrowLeft className="h-6 w-6" />
           </Button>
           <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
           <div className="w-10" /> {/* Spacer for centering */}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Edit2 } from 'lucide-react'
 import { Button } from "@/components/ui/button"
@@ -12,15 +12,81 @@ import { motion } from 'framer-motion'
 export default function PersonalInfoPage() {
   const router = useRouter()
   const [userInfo, setUserInfo] = useState({
-    name: "张三",
+    name: "加载中...",
     avatar: "/placeholder.svg",
-    lifeStage: "奋斗期",
-    riskPreference: "稳健型",
-    age: 28,
-    occupation: "软件工程师",
-    annualIncome: "30-50万",
-    financialGoals: "买房、投资理财"
+    lifeStage: "加载中...",
+    riskPreference: "加载中...",
+    age: "--",
+    occupation: "加载中...",
+    annualIncome: "加载中...",
+    financialGoals: "加载中..."
   })
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await fetch('/api/v1/user/profile')
+        const data = await response.json()
+        
+        // 从AI评估数据中提取用户信息
+        if (data) {
+          setUserInfo({
+            name: data.name || "未设置",
+            avatar: data.avatar || "/placeholder.svg",
+            lifeStage: data.life_stage || "未知",
+            riskPreference: getRiskLevel(data.risk_tolerance) || "稳健型",
+            age: getAgeFromGroup(data.age_group) || "--",
+            occupation: data.employment_status || "未知",
+            annualIncome: formatIncome(data.estimated_monthly_income * 12) || "未知",
+            financialGoals: formatGoals([
+              data.short_term_goal,
+              data.mid_term_goal,
+              data.long_term_goal
+            ]) || "未设置"
+          })
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error)
+        // 保持默认值
+      }
+    }
+
+    fetchUserProfile()
+  }, [])
+
+  // 辅助函数
+  const getRiskLevel = (tolerance?: string) => {
+    const riskMap: { [key: string]: string } = {
+      'conservative': '保守型',
+      'moderate': '稳健型',
+      'aggressive': '进取型'
+    }
+    return tolerance ? riskMap[tolerance] : '稳健型'
+  }
+
+  const getAgeFromGroup = (ageGroup?: string) => {
+    const ageMap: { [key: string]: number } = {
+      '18-25': 22,
+      '26-35': 30,
+      '36-45': 40,
+      '46-55': 50,
+      '56+': 60
+    }
+    return ageGroup ? ageMap[ageGroup] : '--'
+  }
+
+  const formatIncome = (annualIncome?: number) => {
+    if (!annualIncome) return "未知"
+    if (annualIncome < 100000) return "10万以下"
+    if (annualIncome < 300000) return "10-30万"
+    if (annualIncome < 500000) return "30-50万"
+    return "50万以上"
+  }
+
+  const formatGoals = (goals: (string | undefined)[]) => {
+    const validGoals = goals.filter(goal => goal)
+    return validGoals.length > 0 ? validGoals.join('、') : "未设置"
+  }
 
   return (
     <main className="min-h-screen overflow-hidden">

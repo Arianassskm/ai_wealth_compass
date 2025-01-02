@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -50,6 +50,24 @@ export default function BudgetSettingsPage() {
     { name: '其他', percentage: 10, color: 'rgb(75, 192, 192)' },
   ])
 
+  useEffect(() => {
+    const fetchAIEstimation = async () => {
+      try {
+        const response = await fetch('/api/v1/user/profile')
+        const data = await response.json()
+        
+        if (data.ai_evaluation_details?.budget_settings) {
+          setTotalBudget(data.ai_evaluation_details.budget_settings.total_budget)
+          setCategories(data.ai_evaluation_details.budget_settings.categories)
+        }
+      } catch (error) {
+        console.error('Error fetching AI estimation:', error)
+      }
+    }
+
+    fetchAIEstimation()
+  }, [])
+
   const handlePercentageChange = (index: number, newValue: number) => {
     const newCategories = [...categories]
     const oldValue = newCategories[index].percentage
@@ -87,18 +105,42 @@ export default function BudgetSettingsPage() {
     setCategories(newCategories)
   }
 
-  const saveBudget = () => {
-    toast({
-      title: "预算已保存",
-      description: "您的预算设置已成功保存。",
-    })
-  }
+  const saveBudget = async () => {
+    try {
+      const response = await fetch('/api/v1/user/calibrate/budget', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          total_budget: totalBudget,
+          categories: categories
+        }),
+      });
+      
+      if (!response.ok) throw new Error('Failed to save budget');
+      
+      toast({
+        title: "预算已保存",
+        description: "您的预算设置已成功保存，系统将基于这些数据为您提供更准确的建议。",
+      });
+      
+      router.push('/');
+    } catch (error) {
+      toast({
+        title: "保存失败",
+        description: "保存预算时出现错误，请稍后重试。",
+        variant: "destructive"
+      });
+    }
+  };
 
   return (
     <AssistantLayout
       title="预算设置"
       description="设置和管理您的月度预算"
       avatarSrc="/placeholder.svg"
+      onBack={() => router.push('/')}
       sections={[
         {
           id: 'total-budget',
