@@ -1,0 +1,26 @@
+不要生成重复的代码
+不创建功能相同的代码文件
+不要重复生成功能相同的文件夹
+要求添加详细的注释
+指定具体的文件路径
+说明代码之间的依赖关系
+要求添加错误处理
+- 遵循 PEP 8 规范
+- 添加适当的文档字符串
+- 使用英文命名
+遵循单一职责原则
+保持代码模块化
+实现适当的错误处理
+每次新建文件时需要严格遵守fastapi的规范
+遵循sqlalchemy规范
+遵循pydantic规范
+遵循pydantic-settings规范
+遵循pydantic-core规范
+遵循pydantic-extra规范
+遵循pydantic-main规范
+遵循pydantic-models规范
+遵循pydantic-schemas规范
+遵循pydantic-utils规范
+遵循pydantic-core规范
+如果创建自动化脚本，需要有清晰的说明，需要实现日志记录，日志目录为backend/logs
+指令只能给Windows的
