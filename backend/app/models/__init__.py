@@ -1,48 +1,61 @@
-from .base import Base
-from .user import User, UserProfile
-from .account import Account, WealthComponent, WealthSnapshot
-from .investment import Investment, InvestmentRecord, AssetEstimation, AssetCalibration
-from .ai import AIAnalysisHistory, ExpertModel, ExpertAnalysis, AIChatSession, AIChatHistory
-from .transaction import Transaction, TransactionCategory, PaymentMethod, TransactionStats
-from .budget import Budget, BudgetCategory, BudgetExecution, BudgetThreshold
-from .goal import FinancialGoal, GoalProgress, GoalAdjustment, GoalRecommendation
-from .notification import Notification, NotificationSetting, NotificationHistory, AlertRule
-from .system import SystemSetting, FeatureFlag, APIKey, IntegrationConfig
+from .ai import (
+    AICalibration, AIPrediction, PredictionType,
+    AIRecommendation, RecommendationType
+)
+from .algorithm import (
+    FinancialBaseCalculator, HybridPredictionManager, PredictionStatus,
+    StatisticalReference, RiskAssessment, RiskLevel, RiskFactor,
+    LifecycleModel, LifecycleStage, LifecycleFactor
+)
+from .base import Base, BaseModel
+from .financial import (
+    Budget, BudgetType, BudgetStatus,
+    Category, Transaction, TransactionType,
+    TransactionAnalysis, SpendingValue, SpendingAdvisor,
+    SpendingDecision, SpendingDecisionType
+)
+from .investment import (
+    Asset, AssetType, InvestmentTransaction,
+    TransactionType as InvestmentTransactionType,
+    Portfolio, PortfolioStrategy
+)
+from .notification import (
+    Alert, AlertConfig, AlertLevel, AlertCategory,
+    AlertMonitor, Message, MessageType
+)
+from .user import (
+    User, UserRole, Account, AccountType,
+    UserProfile, LifeStage, FinancialStatus
+)
 
 __all__ = [
-    "Base",
-    "User",
-    "UserProfile",
-    "Account",
-    "WealthComponent",
-    "WealthSnapshot",
-    "Investment",
-    "InvestmentRecord",
-    "AssetEstimation",
-    "AssetCalibration",
-    "AIAnalysisHistory",
-    "ExpertModel",
-    "ExpertAnalysis",
-    "AIChatSession",
-    "AIChatHistory",
-    "Transaction",
-    "TransactionCategory",
-    "PaymentMethod",
-    "TransactionStats",
-    "Budget",
-    "BudgetCategory",
-    "BudgetExecution",
-    "BudgetThreshold",
-    "FinancialGoal",
-    "GoalProgress",
-    "GoalAdjustment",
-    "GoalRecommendation",
-    "Notification",
-    "NotificationSetting",
-    "NotificationHistory",
-    "AlertRule",
-    "SystemSetting",
-    "FeatureFlag",
-    "APIKey",
-    "IntegrationConfig"
+    # AI模块
+    'AICalibration', 'AIPrediction', 'PredictionType',
+    'AIRecommendation', 'RecommendationType',
+    
+    # 算法模块
+    'FinancialBaseCalculator', 'HybridPredictionManager', 'PredictionStatus',
+    'StatisticalReference', 'RiskAssessment', 'RiskLevel', 'RiskFactor',
+    'LifecycleModel', 'LifecycleStage', 'LifecycleFactor',
+    
+    # 基础模块
+    'Base', 'BaseModel',
+    
+    # 财务模块
+    'Budget', 'BudgetType', 'BudgetStatus',
+    'Category', 'Transaction', 'TransactionType',
+    'TransactionAnalysis', 'SpendingValue', 'SpendingAdvisor',
+    'SpendingDecision', 'SpendingDecisionType',
+    
+    # 投资模块
+    'Asset', 'AssetType', 'InvestmentTransaction',
+    'InvestmentTransactionType', 'Portfolio', 'PortfolioStrategy',
+    
+    # 通知模块
+    'Alert', 'AlertConfig', 'AlertLevel', 'AlertCategory',
+    'AlertMonitor', 'Message', 'MessageType',
+    
+    # 用户模块
+    'User', 'UserRole', 'Account', 'AccountType',
+    'UserProfile', 'LifeStage', 'FinancialStatus'
 ] 

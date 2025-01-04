@@ -1,12 +1,11 @@
-from .analysis import AIAnalysisHistory
-from .expert import ExpertModel, ExpertAnalysis
-from .session import AIChatSession
-from .chat import AIChatHistory
+from .calibration import AICalibration
+from .prediction import AIPrediction, PredictionType
+from .recommendation import AIRecommendation, RecommendationType
 
 __all__ = [
-    "AIAnalysisHistory",
-    "ExpertModel",
-    "ExpertAnalysis",
-    "AIChatSession",
-    "AIChatHistory"
+    'AICalibration',
+    'AIPrediction',
+    'PredictionType',
+    'AIRecommendation',
+    'RecommendationType'
 ] 
