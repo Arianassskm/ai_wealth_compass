@@ -1,22 +1,20 @@
-from sqlalchemy import Column, Integer, String, JSON, ForeignKey, Enum as SQLEnum
+from sqlalchemy import Column, Integer, String, JSON, ForeignKey, Enum as SQLEnum, Float
 from sqlalchemy.orm import relationship
 from ..base.base_model import BaseModel
-import enum
-
-class RecommendationType(str, enum.Enum):
-    BUDGET_ADJUSTMENT = "budget_adjustment"
-    INVESTMENT_SUGGESTION = "investment_suggestion"
-    RISK_MITIGATION = "risk_mitigation"
-    LIFECYCLE_PLANNING = "lifecycle_planning"
+from ..enums import RecommendationType
 
 class AIRecommendation(BaseModel):
+    """AI推荐模型
+    用于存储AI生成的各类推荐信息，包括预算调整、投资建议等
+    """
     __tablename__ = "ai_recommendations"
     
+    # 关联关系
     user_id = Column(Integer, ForeignKey("users.id"))
     prediction_id = Column(Integer, ForeignKey("ai_predictions.id"))
     
     # 推荐信息
-    type = Column(SQLEnum(RecommendationType))
+    type = Column(SQLEnum(RecommendationType))  # 使用统一的枚举类型
     title = Column(String(200))
     description = Column(String(500))
     priority = Column(Integer)

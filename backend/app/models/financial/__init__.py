@@ -1,28 +1,27 @@
-from .budget import Budget, BudgetType, BudgetStatus
+"""财务相关模型模块
+
+包含预算、交易、支出分析等财务相关的数据模型。
+"""
+
+from ..types import TransactionType, BudgetType, BudgetStatus
+from .budget import Budget
+from .transaction import Transaction
 from .category import Category
+from .transaction_analysis import TransactionAnalysis
 from .spending_value import SpendingValue
 from .spending_advisor import SpendingAdvisor
-from .spending_decision import SpendingDecision, SpendingDecisionType
-from .transaction import Transaction, TransactionType
-from .transaction_analysis import TransactionAnalysis
+from .spending_decision import SpendingDecision
 
 __all__ = [
-    # 预算相关
+    # 类型
+    'TransactionType', 'BudgetType', 'BudgetStatus',
+    
+    # 模型
     'Budget',
-    'BudgetType',
-    'BudgetStatus',
-    
-    # 分类
+    'Transaction',
     'Category',
-    
-    # 支出决策相关
+    'TransactionAnalysis',
     'SpendingValue',
     'SpendingAdvisor',
-    'SpendingDecision',
-    'SpendingDecisionType',
-    
-    # 交易相关
-    'Transaction',
-    'TransactionType',
-    'TransactionAnalysis'
+    'SpendingDecision'
 ] 

@@ -1,24 +1,16 @@
+"""用户模型"""
 from sqlalchemy import Column, String, Enum
-from sqlalchemy.orm import relationship
-from .base_model import BaseModel
-import enum
-
-class UserRole(str, enum.Enum):
-    ADMIN = "admin"
-    USER = "user"
-    VIP = "vip"
+from app.models.base import BaseModel
+from app.models.types import UserRole
 
 class User(BaseModel):
+    """用户模型"""
     __tablename__ = "users"
 
     username = Column(String(50), unique=True, index=True)
     email = Column(String(100), unique=True, index=True)
-    hashed_password = Column(String(200))
-    full_name = Column(String(100))
+    hashed_password = Column(String(100))
     role = Column(Enum(UserRole), default=UserRole.USER)
-    phone = Column(String(20))
-
-    # 关系
-    profile = relationship("UserProfile", back_populates="user", uselist=False)
-    accounts = relationship("Account", back_populates="user")
-    predictions = relationship("AIPrediction", back_populates="user")
+    
+    def __repr__(self):
+        return f"<User {self.username}>"

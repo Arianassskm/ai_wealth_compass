@@ -1,18 +1,10 @@
-from .user import User, UserRole
-from .account import Account, AccountType
-from .user_profile import UserProfile, LifeStage, FinancialStatus
+"""用户相关模型"""
+from .user import User
+from .user_profile import UserProfile
+from .account import Account
 
 __all__ = [
-    # 用户相关
     'User',
-    'UserRole',
-    
-    # 账户相关
-    'Account',
-    'AccountType',
-    
-    # 用户档案相关
     'UserProfile',
-    'LifeStage',
-    'FinancialStatus'
+    'Account'
 ] 

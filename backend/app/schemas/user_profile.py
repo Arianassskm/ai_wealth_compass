@@ -1,37 +1,21 @@
 from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from datetime import datetime
-from enum import Enum
+from app.models.enums import LifeStage, FinancialStatus, RiskLevel
 
-class LifeStageEnum(str, Enum):
-    STUDENT = "student"
-    FRESH_GRADUATE = "fresh_graduate"
-    EARLY_CAREER = "early_career"
-    MID_CAREER = "mid_career"
-    PRE_RETIREMENT = "pre_retirement"
-    RETIREMENT = "retirement"
+class FinancialGoal(BaseModel):
+    description: str = Field(..., description="目标描述")
+    target_amount: float = Field(..., description="目标金额")
+    target_date: Optional[datetime] = Field(None, description="目标日期")
+
+class UserPreferences(BaseModel):
+    investment_style: str = Field(..., description="投资风格")
+    preferred_assets: List[str] = Field(default_factory=list, description="偏好资产类型")
+    risk_tolerance: RiskLevel = Field(..., description="风险承受能力")
 
 class UserProfileBase(BaseModel):
-    age_group: str
-    gender: str
-    life_stage: LifeStageEnum
-    region_code: str
-    financial_status: str
-    housing_status: str
-    employment_status: str
-    lifestyle_status: str
-
-class UserProfileCreate(UserProfileBase):
-    user_id: int
-    short_term_goal: Dict[str, Any]
-    mid_term_goal: Dict[str, Any]
-    long_term_goal: Dict[str, Any]
-
-class UserProfileResponse(UserProfileBase):
-    id: int
-    created_at: datetime
-    prediction_version: int
-    profile_completion_rate: float
-    
-    class Config:
-        from_attributes = True
+    age_group: str = Field(..., description="年龄段")
+    gender: str = Field(..., description="性别")
+    life_stage: LifeStage = Field(..., description="生命阶段")
+    financial_status: FinancialStatus = Field(..., description="财务状态")
+    risk_level: Optional[RiskLevel] = Field(None, description="风险等级")
