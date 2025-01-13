@@ -1,67 +1,27 @@
-# 环境变量文件
-.env
-.env.*
-!.env.example
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-build/
-develop-eggs/
+# Dependencies
+node_modules/
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
-# 虚拟环境
-venv/
-ENV/
-env/
-.venv/
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
 
 # IDE
-.idea/
 .vscode/
-*.swp
-*.swo
-.DS_Store
+.idea/
 
-# 测试
-.coverage
-htmlcov/
-.pytest_cache/
-.tox/
-coverage.xml
-*.cover
-.hypothesis/
+# Database
+db/*.json
+!db/.gitkeep
 
-# 日志
-*.log
-logs/
+# Testing
+coverage/
 
-# 数据库
-*.db
-*.sqlite3
-
-# alembic
-alembic/versions/*
-!alembic/versions/.gitkeep
-
-# 缓存
-.mypy_cache/
-.dmypy.json
-dmypy.json
-.pyre/ 
+# Misc
+.DS_Store 
