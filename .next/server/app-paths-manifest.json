@@ -1,0 +1,8 @@
+{
+  "/not-found": "app/not-found.js",
+  "/profile/page": "app/profile/page.js",
+  "/profile/personal-info/page": "app/profile/personal-info/page.js",
+  "/login/page": "app/login/page.js",
+  "/onboarding/step4/page": "app/onboarding/step4/page.js",
+  "/onboarding/step3/page": "app/onboarding/step3/page.js"
+}
