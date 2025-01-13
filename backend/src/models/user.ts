@@ -65,17 +65,6 @@ interface User {
   financial_status: string
   housing_status: string
   lifestyle_status: string
-  
-  // AI 配置
-  aiConfig: {
-    model: string
-    temperature: number
-    maxTokens: number
-    topP: number
-    frequencyPenalty: number
-    presencePenalty: number
-    systemPrompt: string
-  }
 }
 
 // 定义数据库结构
@@ -98,19 +87,6 @@ class UserModel {
   static async findById(id: string): Promise<User | null> {
     const user = db.get('users').find({ id }).value()
     if (!user) return null
-
-    // 确保返回的用户对象包含 AI 配置
-    if (!user.aiConfig) {
-      user.aiConfig = {
-        model: 'doubao',
-        temperature: 0.7,
-        maxTokens: 2000,
-        topP: 0.9,
-        frequencyPenalty: 0.5,
-        presencePenalty: 0.5,
-        systemPrompt: '我是您的智能理财助手，可以为您提供个性化的理财建议。'
-      }
-    }
 
     return user
   }
@@ -182,18 +158,7 @@ class UserModel {
       // 生活方式信息
       financial_status: userData.financial_status || '',
       housing_status: userData.housing_status || '',
-      lifestyle_status: userData.lifestyle_status || '',
-      
-      // AI 配置
-      aiConfig: userData.aiConfig || {
-        model: 'gpt-3.5-turbo',
-        temperature: 0.7,
-        maxTokens: 2000,
-        topP: 0.9,
-        frequencyPenalty: 0.5,
-        presencePenalty: 0.5,
-        systemPrompt: '我是您的智能理财助手，可以为您提供个性化的理财建议。'
-      }
+      lifestyle_status: userData.lifestyle_status || ''
     }
     
     db.get('users').push(newUser).write()
@@ -236,33 +201,6 @@ class UserModel {
     
     const { password, ...userWithoutPassword } = updatedUser
     return userWithoutPassword as User
-  }
-
-  static async updateAIConfig(userId: string, aiConfig: Partial<User['aiConfig']>): Promise<User | null> {
-    const user = await this.findById(userId)
-    if (!user) return null
-
-    const updatedUser = {
-      ...user,
-      aiConfig: {
-        ...user.aiConfig,
-        model: aiConfig.model || user.aiConfig.model,
-        temperature: aiConfig.temperature || user.aiConfig.temperature,
-        maxTokens: aiConfig.maxTokens || user.aiConfig.maxTokens,
-        topP: aiConfig.topP || user.aiConfig.topP,
-        frequencyPenalty: aiConfig.frequencyPenalty || user.aiConfig.frequencyPenalty,
-        presencePenalty: aiConfig.presencePenalty || user.aiConfig.presencePenalty,
-        systemPrompt: aiConfig.systemPrompt || user.aiConfig.systemPrompt
-      },
-      updatedAt: new Date().toISOString()
-    }
-
-    db.get('users')
-      .find({ id: userId })
-      .assign(updatedUser)
-      .write()
-
-    return updatedUser
   }
 }
 

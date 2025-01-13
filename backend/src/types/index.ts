@@ -16,17 +16,6 @@ export interface User {
   contactInfo?: Record<string, any>
   createdAt: string
   updatedAt: string
-  
-  // 添加 AI 配置接口
-  aiConfig: {
-    model: string
-    temperature: number
-    maxTokens: number
-    topP: number
-    frequencyPenalty: number
-    presencePenalty: number
-    systemPrompt: string
-  }
 }
 
 export interface AuthenticatedRequest extends Request {
