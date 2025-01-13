@@ -8,9 +8,12 @@ import { Card } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { EnhancedBackground } from '@/components/enhanced-background'
 import { motion } from 'framer-motion'
+import { useAuth } from '@/hooks/useAuth'
+import { config } from '@/config'
 
 export default function PersonalInfoPage() {
   const router = useRouter()
+  const { token } = useAuth()
   const [userInfo, setUserInfo] = useState({
     name: "加载中...",
     avatar: "/placeholder.svg",
@@ -25,10 +28,16 @@ export default function PersonalInfoPage() {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const response = await fetch('/api/v1/user/profile')
-        const data = await response.json()
+        const response = await fetch(`${config.apiUrl}${config.apiEndpoints.user.profile}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
         
-        // 从AI评估数据中提取用户信息
+        if (!response.ok) throw new Error('Failed to fetch profile')
+        
+        const { data } = await response.json()
+        
         if (data) {
           setUserInfo({
             name: data.name || "未设置",
@@ -51,8 +60,10 @@ export default function PersonalInfoPage() {
       }
     }
 
-    fetchUserProfile()
-  }, [])
+    if (token) {
+      fetchUserProfile()
+    }
+  }, [token])
 
   // 辅助函数
   const getRiskLevel = (tolerance?: string) => {
@@ -123,7 +134,8 @@ export default function PersonalInfoPage() {
                 <h2 className="text-2xl font-bold text-gray-900">{userInfo.name}</h2>
                 <p className="text-sm text-gray-500">{userInfo.lifeStage}</p>
               </div>
-              <Button variant="outline" size="sm" className="ml-auto bg-white text-gray-600 border-gray-200">
+              <Button variant="outline" size="sm" className="ml-auto bg-white text-gray-600 border-gray-200"
+              onClick={() => router.push('/onboarding')}>
                 <Edit2 className="w-4 h-4 mr-2" />
                 编辑
               </Button>

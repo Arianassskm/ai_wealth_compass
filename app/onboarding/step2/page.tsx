@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ArrowLeft, GraduationCap, Briefcase, Users, Home, Heart, Baby, Backpack, Building, Sunrise, Sunset } from 'lucide-react'
+import { useOnboarding } from '@/contexts/onboarding-context'
 
 const lifeStages = [
   {
@@ -72,12 +73,21 @@ const lifeStages = [
 
 export default function LifeStageSelectionPage() {
   const router = useRouter()
-  const [selectedStage, setSelectedStage] = useState<string>('')
+  const { data, updateData } = useOnboarding()
+  const [selectedStage, setSelectedStage] = useState<string>(data.life_stage || '')
 
   const handleNext = () => {
+    console.log('selectedStage', selectedStage)
     if (selectedStage) {
+      updateData({
+        life_stage: selectedStage
+      })
       router.push('/onboarding/step3')
     }
+  }
+
+  const handleSkip = () => {
+    router.push('/onboarding/step3')
   }
 
   return (
@@ -98,7 +108,7 @@ export default function LifeStageSelectionPage() {
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900">选择人生阶段</h1>
             <p className="text-xs sm:text-sm text-gray-500">帮助我们更好地了解您的需求</p>
           </div>
-          <Button variant="ghost" className="text-gray-500 text-xs sm:text-sm">
+          <Button variant="ghost" className="text-gray-500 text-xs sm:text-sm" onClick={handleSkip}>
             跳过
           </Button>
         </header>

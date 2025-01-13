@@ -13,6 +13,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { useOnboarding } from '@/contexts/onboarding-context'
+import Avatar from 'boring-avatars'
 
 const ageGroups = [
   { value: '10后', label: '10后', icon: Headphones, description: '2010年后出生' },
@@ -40,6 +42,7 @@ const additionalAgeGroups = [
 
 export default function OnboardingPage() {
   const router = useRouter()
+  const { data, updateData } = useOnboarding()
   const [selectedAge, setSelectedAge] = useState<string>('')
   const [selectedGender, setSelectedGender] = useState<'male' | 'female' | null>(null)
   const [showSkipDialog, setShowSkipDialog] = useState(false)
@@ -48,7 +51,10 @@ export default function OnboardingPage() {
 
   const handleNext = () => {
     if (selectedAge && selectedGender) {
-      // Save the selections and proceed to next step
+      updateData({
+        age_group: selectedAge,
+        gender: selectedGender
+      })
       router.push('/onboarding/step2')
     }
   }
@@ -171,10 +177,17 @@ export default function OnboardingPage() {
                   whileTap={{ scale: 0.95 }}
                 >
                   <div className="w-12 h-12">
-                    <img
-                      src="/avatars/male.png"
-                      alt="Male"
-                      className="w-full h-full object-contain"
+                    <Avatar
+                      size={48}
+                      name="male-professional"
+                      variant="bauhaus"
+                      colors={[
+                        "#0A2463",
+                        "#247BA0",
+                        "#3B8EA5",
+                        "#5C6B73",
+                        "#E8F1F2"
+                      ]}
                     />
                   </div>
                   <span className={`text-sm font-medium ${
@@ -195,10 +208,17 @@ export default function OnboardingPage() {
                   whileTap={{ scale: 0.95 }}
                 >
                   <div className="w-12 h-12">
-                    <img
-                      src="/avatars/female.png"
-                      alt="Female"
-                      className="w-full h-full object-contain"
+                    <Avatar
+                      size={48}
+                      name="female-professional"
+                      variant="bauhaus"
+                      colors={[
+                        "#9B2C2C",
+                        "#D53F8C",
+                        "#ED64A6",
+                        "#B83280",
+                        "#FFF5F7"
+                      ]}
                     />
                   </div>
                   <span className={`text-sm font-medium ${

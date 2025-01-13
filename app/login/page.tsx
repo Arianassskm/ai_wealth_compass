@@ -2,82 +2,107 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Eye, EyeOff } from 'lucide-react'
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { useAuth } from '@/hooks/useAuth'
+import { toast } from 'sonner'
+import { config } from '@/config'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
+  const { setToken } = useAuth()
+  const [isLogin, setIsLogin] = useState(true)
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    name: ''
+  })
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('登录尝试:', { username, password })
-    // 这里应该有实际的登录逻辑
-    router.push('/')
+    try {
+      const endpoint = isLogin ? config.apiEndpoints.auth.login : config.apiEndpoints.auth.register
+      const response = await fetch(`${config.apiUrl}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      })
+
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || '操作失败')
+      }
+
+      setToken(data.data.token)
+      toast.success(isLogin ? '登录成功' : '注册成功')
+      router.push('/profile')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : '操作失败')
+    }
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-6">
-        <h1 className="text-2xl font-bold text-center mb-6">登录</h1>
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-              用户名
-            </label>
+        <h1 className="text-2xl font-bold text-center mb-6">
+          {isLogin ? '登录' : '注册'}
+        </h1>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {!isLogin && (
+            <div className="space-y-2">
+              <Label htmlFor="name">姓名</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                required={!isLogin}
+              />
+            </div>
+          )}
+          
+          <div className="space-y-2">
+            <Label htmlFor="email">邮箱</Label>
             <Input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
               required
-              className="w-full"
             />
           </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              密码
-            </label>
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full pr-10"
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? (
-                  <EyeOff className="h-5 w-5 text-gray-400" />
-                ) : (
-                  <Eye className="h-5 w-5 text-gray-400" />
-                )}
-              </button>
-            </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="password">密码</Label>
+            <Input
+              id="password"
+              type="password"
+              value={formData.password}
+              onChange={e => setFormData(prev => ({ ...prev, password: e.target.value }))}
+              required
+            />
           </div>
-          <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-            登录
+          
+          <Button type="submit" className="w-full">
+            {isLogin ? '登录' : '注册'}
           </Button>
-          <div className="mt-4 text-center">
-            <p className="text-sm text-gray-600">
-              还没有账户？{" "}
-              <Button variant="link" className="p-0" onClick={() => router.push('/register')}>
-                立即注册
-              </Button>
-            </p>
-          </div>
         </form>
+        
+        <div className="mt-4 text-center">
+          <button
+            type="button"
+            className="text-sm text-blue-600 hover:underline"
+            onClick={() => setIsLogin(!isLogin)}
+          >
+            {isLogin ? '没有账号？去注册' : '已有账号？去登录'}
+          </button>
+        </div>
       </Card>
-    </main>
+    </div>
   )
 }
 

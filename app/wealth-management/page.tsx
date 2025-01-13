@@ -102,7 +102,7 @@ export default function WealthManagementPage() {
     <AssistantLayout
       title="反向财富管理"
       description="通过分类管理不同账户来掌控您的财富"
-      avatarSrc="/placeholder.svg"
+      avatarSrc="../../../public/placeholder.svg"
       onBack={() => router.push('/')}
       sections={[
         {

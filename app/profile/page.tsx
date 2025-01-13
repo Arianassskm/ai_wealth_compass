@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronRight, Bell, Lock, LogOut, User, Award, Edit2 } from 'lucide-react'
 import { Button } from "@/components/ui/button"
@@ -11,19 +11,41 @@ import { EnhancedBackground } from '@/components/enhanced-background'
 import { AIModelSettings } from '@/components/ai-model-settings'
 import { motion } from 'framer-motion'
 import { BottomNav } from "@/components/bottom-nav"
-
-type Badge = {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  shortDescription: string;
-}
+import { useAuthContext } from '@/providers/auth-provider'
+import { fetchApi } from '@/lib/api'
+import { config } from '@/config'
+import { LIFE_STAGE_MAP } from '@/lib/dictionaries'
 
 export default function ProfilePage() {
   const router = useRouter()
-  const [userName, setUserName] = useState("张三")
-  const [lifeStage, setLifeStage] = useState("奋斗期")
+  const { token, logout } = useAuthContext()
+  const [userInfo, setUserInfo] = useState({
+    name: "加载中...",
+    lifeStage: "加载中..."
+  })
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const { data } = await fetchApi(config.apiEndpoints.user.profile, {
+          token
+        })
+        
+        if (data) {
+          setUserInfo({
+            name: data.name || "未设置",
+            lifeStage: data.life_stage || "未知"
+          })
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error)
+      }
+    }
+
+    if (token) {
+      fetchUserProfile()
+    }
+  }, [token])
 
   const menuItems = [
     { icon: <User className="w-5 h-5" />, title: "个人资料", link: "/profile/personal-info" },
@@ -42,8 +64,7 @@ export default function ProfilePage() {
   ]
 
   const handleLogout = () => {
-    console.log("用户登出")
-    router.push('/login')
+    logout()
   }
 
   return (
@@ -59,14 +80,18 @@ export default function ProfilePage() {
           <Card className="mb-6 p-4 backdrop-blur-xl bg-white/80 border-gray-200">
             <div className="flex items-center">
               <Avatar className="h-16 w-16">
-                <AvatarImage src="/placeholder.svg" alt={userName} />
-                <AvatarFallback>{userName[0]}</AvatarFallback>
+                <AvatarImage src="/placeholder.svg" alt={userInfo.name} />
+                <AvatarFallback>{userInfo.name[0]}</AvatarFallback>
               </Avatar>
               <div className="ml-4 flex-grow">
-                <h2 className="text-xl font-bold text-gray-900">{userName}</h2>
-                <p className="text-sm text-gray-500">{lifeStage}</p>
+                <h2 className="text-xl font-bold text-gray-900">{userInfo.name}</h2>
+                <div className="flex items-center mb-2">
+                  <span className="text-gray-900">
+                    {LIFE_STAGE_MAP[userInfo.lifeStage] || userInfo.lifeStage}
+                  </span>
+                </div>
               </div>
-              <Button variant="outline" size="sm" className="ml-auto bg-white text-gray-600 border-gray-200" onClick={() => router.push('/onboarding')}>
+              <Button variant="outline" size="sm" className="ml-auto bg-white text-gray-600 border-gray-200" onClick={() => router.push('/profile/personal-info')}>
                 <Edit2 className="w-4 h-4 mr-2" />
                 编辑
               </Button>

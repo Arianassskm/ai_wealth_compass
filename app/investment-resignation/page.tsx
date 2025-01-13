@@ -82,15 +82,81 @@ export default function InvestmentResignationPage() {
     }, 1000)
   }
 
-  const handleSubmitInfo = () => {
-    let summary = ""
-    if (decisionType === "投资") {
-      summary = `我计划进行${investmentType}投资，预计投资金额为${amount}元，投资期限为${timeframe}。我当前的储蓄是${currentSavings}元。请为我分析可行性并提供建议。`
-    } else if (decisionType === "辞职") {
-      summary = `我正在考虑辞职，主要原因是${resignationReason}。我当前的储蓄是${currentSavings}元，预计可以维持${timeframe}的生活。请为我分析可行性并提供建议。`
+  const handleSubmitInfo = async () => {
+    if (!decisionType || !amount || !timeframe || !currentSavings) {
+      // 显示错误提示
+      return;
     }
-    handleSendMessage(summary)
-  }
+
+    setIsSubmitting(true);
+    
+    try {
+      const response = await fetch('/api/v1/investment-resignation/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          decision_type: decisionType === "投资" ? "investment" : "resignation",
+          amount: parseInt(amount),
+          timeframe,
+          current_savings: parseInt(currentSavings),
+          investment_type: decisionType === "投资" ? investmentType : undefined,
+          resignation_reason: decisionType === "辞职" ? resignationReason : undefined
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('分析请求失败');
+      }
+
+      const result = await response.json();
+      
+      // 添加AI回复消息
+      const aiMessage: ChatMessage = {
+        id: uuidv4(),
+        content: formatAIResponse(result),
+        isUser: false,
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, aiMessage]);
+      
+    } catch (error) {
+      console.error('分析失败:', error);
+      // 添加错误消息
+      const errorMessage: ChatMessage = {
+        id: uuidv4(),
+        content: "抱歉，分析过程中出现了错误，请稍后重试。",
+        isUser: false,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const formatAIResponse = (result: any) => {
+    const { analysis_result, risk_assessment, recommendations } = result;
+    
+    return `
+分析结果：
+可行性评分：${analysis_result.feasibility_score}/100
+
+主要发现：
+${analysis_result.key_findings.map((finding: string) => `• ${finding}`).join('\n')}
+
+风险评估：
+风险等级：${risk_assessment.level}
+${risk_assessment.factors.map((factor: string) => `• ${factor}`).join('\n')}
+
+建议：
+${recommendations.map((rec: string) => `• ${rec}`).join('\n')}
+
+您对这个分析结果有什么想法或疑问吗？
+  `.trim();
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-purple-100 to-indigo-200 flex flex-col">

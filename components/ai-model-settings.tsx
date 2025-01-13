@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Check, ChevronDown, ChevronUp, Save, RefreshCw, X } from 'lucide-react'
 import { Button } from "@/components/ui/button"
@@ -14,6 +14,9 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import { toast } from "@/components/ui/use-toast"
+import { useAuthContext } from '@/providers/auth-provider'
+import { fetchApi } from '@/lib/api'
+import { config } from '@/config'
 
 interface AIModel {
   id: string
@@ -25,10 +28,10 @@ interface AIModel {
 
 const availableModels: AIModel[] = [
   {
-    id: 'tongyi-14b',
-    name: '通义千问',
-    provider: '阿里云',
-    description: '阿里云开发的大语言模型，支持中英双语对话'
+    "id": "doubao",
+    "name": "豆包",
+    "provider": "字节跳动",
+    "description": "字节跳动开发的人工智能，能帮用户解答各类疑问、进行文本创作等多方面的语言交互服务"
   },
   {
     id: 'kimi-v1',
@@ -64,13 +67,14 @@ interface APIConfig {
 }
 
 export function AIModelSettings() {
+  const { token } = useAuthContext()
   const [models, setModels] = useState<AIModel[]>(availableModels)
   const [isExpanded, setIsExpanded] = useState(false)
   const [apiConfigs, setApiConfigs] = useState<{[key: string]: APIConfig}>({
-    'aliyun': {
-      provider: '阿里云',
+    'bytedance': {
+      provider: '字节跳动',
       apiKey: '',
-      baseUrl: 'https://api.aliyun.com/v1',
+      baseUrl: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
       isEnabled: false
     },
     'moonshot': {
@@ -86,31 +90,191 @@ export function AIModelSettings() {
       isEnabled: false
     }
   })
+  const [isSaving, setIsSaving] = useState(false)
 
-  const handleModelToggle = (modelId: string) => {
-    setModels(models.map(model => 
-      model.id === modelId 
-        ? { ...model, isSelected: !model.isSelected }
-        : model
-    ))
+  // 加载配置
+  useEffect(() => {
+    const loadConfig = async () => {
+      if (!token) return
+
+      try {
+        const response = await fetchApi(config.apiEndpoints.user.aiConfig, {
+          token
+        })
+
+        if (response.success && response.data) {
+          const config = response.data
+          // 根据 provider 更新对应的配置
+          const providerMap: { [key: string]: string } = {
+            '字节跳动': 'bytedance',
+            'Moonshot AI': 'moonshot',
+            'Deepseek': 'deepseek'
+          }
+          
+          const providerKey = providerMap[config.provider]
+          if (providerKey && apiConfigs[providerKey]) {
+            setApiConfigs(prev => ({
+              ...prev,
+              [providerKey]: {
+                provider: config.provider,
+                apiKey: config.apiKey || '',
+                baseUrl: config.baseUrl || '',
+                isEnabled: config.isEnabled || false
+              }
+            }))
+
+            // 更新模型选择状态
+            setModels(models.map(model => ({
+              ...model,
+              isSelected: model.provider === config.provider
+            })))
+          }
+        }
+      } catch (error) {
+        console.error('Error loading AI config:', error)
+        toast({
+          title: "加载失败",
+          description: "无法加载AI配置",
+          variant: "destructive"
+        })
+      }
+    }
+
+    loadConfig()
+  }, [token])
+
+  const handleModelToggle = async (modelId: string) => {
+    // 先更新本地状态
+    const newModels = models.map(model => ({
+      ...model,
+      isSelected: model.id === modelId ? !model.isSelected : false
+    }))
+    setModels(newModels)
+
+    // 获取选中的模型
+    const selectedModel = newModels.find(m => m.isSelected)
+    
+    try {
+      const selectedProvider = selectedModel?.provider || '豆包'
+      const aiModelConfig: APIConfig = {
+        provider: selectedProvider,
+        apiKey: apiConfigs[selectedProvider.toLowerCase()]?.apiKey || '',
+        baseUrl: apiConfigs[selectedProvider.toLowerCase()]?.baseUrl || '',
+        isEnabled: true
+      }
+
+      await fetchApi(config.apiEndpoints.user.aiConfig, {
+        method: 'PUT',
+        token,
+        body: JSON.stringify({ aiConfig: aiModelConfig })
+      })
+
+      toast({
+        title: "已更新",
+        description: `已切换至${selectedModel?.name || '默认'}模型`,
+      })
+    } catch (error) {
+      setModels(models)
+      toast({
+        title: "更新失败",
+        description: error instanceof Error ? error.message : "请稍后重试",
+        variant: "destructive"
+      })
+    }
   }
 
-  const handleApiConfigUpdate = (provider: string, field: keyof APIConfig, value: string | boolean) => {
-    setApiConfigs(prev => ({
-      ...prev,
+  const handleApiConfigUpdate = async (provider: string, field: keyof APIConfig, value: string | boolean) => {
+    // 先更新本地状态
+    const newConfigs = {
+      ...apiConfigs,
       [provider]: {
-        ...prev[provider],
+        ...apiConfigs[provider],
         [field]: value
       }
-    }))
+    }
+    setApiConfigs(newConfigs)
+
+    // 如果是修改 enabled 状态或 API 相关字段，立即保存到服务器
+    if (field === 'isEnabled' || field === 'apiKey' || field === 'baseUrl') {
+      try {
+        const currentConfig = newConfigs[provider]
+        const aiModelConfig: APIConfig = {
+          provider: currentConfig.provider,
+          apiKey: currentConfig.apiKey,
+          baseUrl: currentConfig.baseUrl,
+          isEnabled: currentConfig.isEnabled
+        }
+
+        await fetchApi(config.apiEndpoints.user.aiConfig, {
+          method: 'PUT',
+          token,
+          body: JSON.stringify({ aiConfig: aiModelConfig })
+        })
+
+        toast({
+          title: "已更新",
+          description: field === 'isEnabled' 
+            ? `已${value ? '启用' : '禁用'}${currentConfig.provider}`
+            : `已更新${currentConfig.provider}的${field === 'apiKey' ? 'API密钥' : 'API地址'}`,
+        })
+      } catch (error) {
+        // 如果保存失败，回滚本地状态
+        setApiConfigs(apiConfigs)
+        toast({
+          title: "更新失败",
+          description: error instanceof Error ? error.message : "请稍后重试",
+          variant: "destructive"
+        })
+      }
+    }
   }
 
-  const handleSaveSettings = () => {
-    // Here you would typically save the settings to your backend
-    toast({
-      title: "设置已保存",
-      description: "AI模型配置已更新",
-    })
+  const handleSaveSettings = async () => {
+    if (!token) {
+      toast({
+        title: "未登录",
+        description: "请先登录后再保存设置",
+        variant: "destructive"
+      })
+      return
+    }
+
+    try {
+      setIsSaving(true)
+      const selectedModel = models.find(m => m.isSelected)
+      const selectedProvider = selectedModel?.provider || '豆包'
+      
+      const aiModelConfig: APIConfig = {
+        provider: selectedProvider,
+        apiKey: apiConfigs[selectedProvider.toLowerCase()]?.apiKey || '',
+        baseUrl: apiConfigs[selectedProvider.toLowerCase()]?.baseUrl || '',
+        isEnabled: true
+      }
+
+      const response = await fetchApi(config.apiEndpoints.user.aiConfig, {
+        method: 'PUT',
+        token,
+        body: JSON.stringify({ aiConfig: aiModelConfig })
+      })
+
+      if (response.success) {
+        toast({
+          title: "设置已保存",
+          description: "AI模型配置已更新",
+        })
+      } else {
+        throw new Error(response.error || '保存失败')
+      }
+    } catch (error) {
+      console.error('Error saving AI config:', error)
+      toast({
+        title: "保存失败",
+        description: error instanceof Error ? error.message : "请稍后重试",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (

@@ -8,20 +8,69 @@ import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { ArrowLeft, Wallet, Home, Briefcase, ShoppingCart } from 'lucide-react'
 import { RadioCard } from "@/components/radio-card"
+import { useOnboarding } from '@/contexts/onboarding-context'
 
 export default function LifestyleInformationPage() {
   const router = useRouter()
-  const [financialStatus, setFinancialStatus] = useState('')
-  const [housingStatus, setHousingStatus] = useState('')
-  const [employmentStatus, setEmploymentStatus] = useState('')
-  const [lifestyleStatus, setLifestyleStatus] = useState('')
+  const { data, updateData } = useOnboarding()
+  const [financialStatus, setFinancialStatus] = useState(data.financial_status || '')
+  const [housingStatus, setHousingStatus] = useState(data.housing_status || '')
+  const [employmentStatus, setEmploymentStatus] = useState(data.employment_status || '')
+  const [lifestyleStatus, setLifestyleStatus] = useState(data.lifestyle_status || '')
 
   const allOptionsSelected = () => {
     return financialStatus !== '' && housingStatus !== '' && employmentStatus !== '' && lifestyleStatus !== '';
   };
 
   const handleNext = () => {
+    console.log('financialStatus', financialStatus)
+    console.log('housingStatus', housingStatus)
+    console.log('employmentStatus', employmentStatus)
+    console.log('lifestyleStatus', lifestyleStatus)
+    console.log('inferMonthlyExpenses', inferMonthlyExpenses(financialStatus))
+    console.log('inferSavings', inferSavings(financialStatus, housingStatus))
+    updateData({
+      financial_status: financialStatus,
+      housing_status: housingStatus,
+      employment_status: employmentStatus,
+      lifestyle_status: lifestyleStatus,
+      monthly_expenses: inferMonthlyExpenses(financialStatus),
+      savings: inferSavings(financialStatus, housingStatus)
+    })
     router.push('/onboarding/step4')
+  }
+
+  const inferMonthlyExpenses = (status: string): number => {
+    const expensesMap: Record<string, number> = {
+      '省吃俭用': 3000,
+      '基本温饱': 5000,
+      '小有盈余': 8000,
+      '品质生活': 15000,
+      '精致生活': 30000
+    }
+    return expensesMap[status] || 0
+  }
+
+  const inferSavings = (financial: string, housing: string): number => {
+    let baseAmount = 0
+    
+    const financialMap: Record<string, number> = {
+      '省吃俭用': 10000,
+      '基本温饱': 30000,
+      '小有盈余': 100000,
+      '品质生活': 300000,
+      '精致生活': 1000000
+    }
+    baseAmount += financialMap[financial] || 0
+    
+    const housingAdjustment: Record<string, number> = {
+      '蜗居生活': 1,
+      '小家初成': 0.5,
+      '温馨三口': 0.8,
+      '安逸生活': 1.5,
+      '优质生活': 2
+    }
+    return baseAmount * (housingAdjustment[housing] || 1)
   }
 
   return (
