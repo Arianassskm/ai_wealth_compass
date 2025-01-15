@@ -1,0 +1,59 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Testing
+coverage/
+
+# Next.js
+.next/
+out/
+
+# Production
+build/
+dist/
+
+# Misc
+.DS_Store
+*.pem
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Database
+backend/db/*.json
+
+.next/cache/webpack/client-development/1.pack.gz
+.next/cache/webpack/client-development/5.pack.gz
+.next/cache/webpack/client-development/6.pack.gz
+.next/cache/webpack/client-development/9.pack.gz
+.next/cache/webpack/client-development/10.pack.gz
+.next/cache/webpack/client-development/11.pack.gz
+.next/cache/webpack/client-development/12.pack.gz
+.next/cache/webpack/client-development/13.pack.gz
+.next/cache/webpack/client-development/14.pack.gz
+.next/cache/webpack/client-development/16.pack.gz
+.next/cache/webpack/client-development/index.pack.gz
+.next/cache/webpack/client-development/index.pack.gz.old
+.next/cache/webpack/server-development/0.pack.gz
+.next/cache/webpack/server-development/5.pack.gz
+.next/cache/webpack/server-development/10.pack.gz
+.next/cache/webpack/server-development/12.pack.gz
+.next/cache/webpack/server-development/14.pack.gz
+.next/cache/webpack/server-development/index.pack.gz
+.next/cache/webpack/server-development/index.pack.gz.old
+.next/trace
