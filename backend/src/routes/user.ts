@@ -1,9 +1,11 @@
-import { Router } from 'express'
+import { Router, Response } from 'express'
 import { auth } from '../middleware/auth'
 import { UserModel } from '../models/user'
 import { ApiResponse, AuthenticatedRequest, MonthlyFinanceData, MonthlyTrendData } from '../types'
 import { AIConfigModel, AIConfig } from '../models/ai-config'
 import { MonthlyFinanceModel } from '../models/monthly-finance'
+import fs from 'fs/promises'
+import path from 'path'
 
 const router = Router()
 
@@ -196,5 +198,86 @@ router.get('/monthly-trend', auth, async (req: AuthenticatedRequest, res) => {
     res.status(500).json(response)
   }
 })
+
+router.post('/calibrate/budget', auth, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { total_budget, categories } = req.body;
+
+    if (!total_budget || !categories || !Array.isArray(categories)) {
+      res.status(400).json({
+        success: false,
+        error: '无效的预算数据',
+        message: '请提供有效的预算金额和分类信息'
+      });
+      return;
+    }
+
+    // 读取用户数据
+    const data = await fs.readFile(path.join(__dirname, '../../db/users.json'), 'utf-8');
+    const { users } = JSON.parse(data);
+    
+    // 查找并更新用户数据
+    const userIndex = users.findIndex((u: any) => u.id === userId);
+    if (userIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        error: '用户不存在',
+        message: '未找到指定用户'
+      });
+    }
+
+    // 更新预算设置
+    if (!users[userIndex].ai_evaluation_details) {
+      users[userIndex].ai_evaluation_details = {};
+    }
+
+    users[userIndex].ai_evaluation_details.budget_settings = {
+      total_budget,
+      categories,
+      monthly_budget: {
+        income: users[userIndex].estimated_monthly_income || 0,
+        expenses: {
+          fixed: {
+            housing: Math.round(total_budget * 0.3),
+            utilities: Math.round(total_budget * 0.05),
+            transportation: Math.round(total_budget * 0.1)
+          },
+          variable: {
+            food: Math.round(total_budget * 0.2),
+            entertainment: Math.round(total_budget * 0.15),
+            shopping: Math.round(total_budget * 0.1)
+          },
+          savings: Math.round(total_budget * 0.1)
+        },
+        current_month: new Date().toISOString().slice(0, 7),
+        history: users[userIndex].ai_evaluation_details?.budget_settings?.monthly_budget?.history || []
+      }
+    };
+
+    // 更新最后修改时间
+    users[userIndex].ai_evaluation_details.last_updated = new Date().toISOString();
+    users[userIndex].updatedAt = new Date().toISOString();
+
+    // 保存更新后的数据
+    await fs.writeFile(
+      path.join(__dirname, '../../db/users.json'),
+      JSON.stringify({ users }, null, 2)
+    );
+
+    res.json({
+      success: true,
+      data: users[userIndex].ai_evaluation_details.budget_settings
+    });
+
+  } catch (error) {
+    console.error('Failed to update budget settings:', error);
+    res.status(500).json({
+      success: false,
+      error: '更新预算失败',
+      message: error instanceof Error ? error.message : '未知错误'
+    });
+  }
+});
 
 export default router 

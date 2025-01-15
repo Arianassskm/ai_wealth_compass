@@ -10,7 +10,10 @@ export const config = {
       updateProfile: '/v1/user/profile',
       aiConfig: '/v1/user/ai-config',
       financeDashboard: '/v1/user/finance-dashboard',
-      monthlyTrend: '/v1/user/monthly-trend'
+      monthlyTrend: '/v1/user/monthly-trend',
+      budgetSettings: '/v1/user/budget-settings',
+      updateBudgetSettings: (id:string) => `/v1/user/calibrate/budget/${id}`,
+      calibrateBudget: '/v1/user/calibrate/budget'
     },
     onboarding: '/v1/onboarding',
     accounts: {
@@ -28,6 +31,6 @@ export const config = {
     },
     ai: {
       chat: '/v3/chat/completions'
-    }
+    },
   }
 } as const 

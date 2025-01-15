@@ -9,6 +9,9 @@ import { AssistantLayout } from '@/components/assistant-layout'
 import { motion } from 'framer-motion'
 import { toast } from "@/components/ui/use-toast"
 import { useRouter } from 'next/navigation'
+import { config } from '@/config'
+import { useAuthContext } from '@/providers/auth-provider'
+import { fetchApi } from '@/lib/api'
 
 const CircularProgress = ({ percentage, color }: { percentage: number; color: string }) => (
   <div className="relative w-20 h-20">
@@ -42,6 +45,7 @@ const CircularProgress = ({ percentage, color }: { percentage: number; color: st
 
 export default function BudgetSettingsPage() {
   const router = useRouter()
+  const { token } = useAuthContext()
   const [totalBudget, setTotalBudget] = useState(5000)
   const [categories, setCategories] = useState([
     { name: '生活必需品', percentage: 50, color: 'rgb(255, 99, 132)' },
@@ -53,8 +57,10 @@ export default function BudgetSettingsPage() {
   useEffect(() => {
     const fetchAIEstimation = async () => {
       try {
-        const response = await fetch('/api/v1/user/profile')
-        const data = await response.json()
+        const response = await fetchApi(config.apiEndpoints.user.profile,{
+          token
+        })
+        const data = await response.data
         
         if (data.ai_evaluation_details?.budget_settings) {
           setTotalBudget(data.ai_evaluation_details.budget_settings.total_budget)
@@ -107,10 +113,11 @@ export default function BudgetSettingsPage() {
 
   const saveBudget = async () => {
     try {
-      const response = await fetch('/api/v1/user/calibrate/budget', {
+      const response = await fetchApi(config.apiEndpoints.user.calibrateBudget, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           total_budget: totalBudget,
@@ -125,7 +132,7 @@ export default function BudgetSettingsPage() {
         description: "您的预算设置已成功保存，系统将基于这些数据为您提供更准确的建议。",
       });
       
-      router.push('/');
+      // router.push('/');
     } catch (error) {
       toast({
         title: "保存失败",
