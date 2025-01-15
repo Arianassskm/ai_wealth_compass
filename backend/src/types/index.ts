@@ -102,4 +102,9 @@ export interface MonthlyFinanceData {
     categories: InvestmentDetails
   }
   savings: number
+}
+
+export interface MonthlyTrendData {
+  date: string
+  value: number
 } 

@@ -64,6 +64,8 @@ export function useFinanceData() {
     const fetchFinanceData = async () => {
       try {
         setLoading(true)
+        console.log('开始获取数据，token:', token)
+
         const [dashboardResponse, trendResponse] = await Promise.all([
           fetchApi<FinanceData>(config.apiEndpoints.user.financeDashboard, { token }),
           fetchApi<{ data: Array<{ date: string, value: number }> }>(
@@ -72,12 +74,16 @@ export function useFinanceData() {
           )
         ])
 
+        console.log('Dashboard 响应:', dashboardResponse)
+        console.log('Trend 响应:', trendResponse)
+
         setFinanceData({
           ...dashboardResponse.data,
           monthly_trend: trendResponse.data
         })
         setError(null)
       } catch (err) {
+        console.error('数据获取错误:', err)
         setError(err instanceof Error ? err.message : '获取数据失败')
       } finally {
         setLoading(false)

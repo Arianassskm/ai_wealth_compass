@@ -104,7 +104,7 @@ export default function HomePage() {
   const [expandedCategory, setExpandedCategory] = useState<number | null>(null)
   const { token } = useAuthContext()
   const { financeData, loading, error } = useFinanceData()
-
+  
   const disposableIncome = financeData?.disposable_income.current || 0
   const growthRate = financeData?.disposable_income.growth || 0
   const lastMonthAmount = financeData?.disposable_income.last || 0

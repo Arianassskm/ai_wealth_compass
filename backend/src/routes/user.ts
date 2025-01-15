@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { auth } from '../middleware/auth'
 import { UserModel } from '../models/user'
-import { ApiResponse, User, AuthenticatedRequest, MonthlyFinanceData } from '../types'
+import { ApiResponse, AuthenticatedRequest, MonthlyFinanceData, MonthlyTrendData } from '../types'
 import { AIConfigModel, AIConfig } from '../models/ai-config'
 import { MonthlyFinanceModel } from '../models/monthly-finance'
 
@@ -13,7 +13,7 @@ router.get('/profile', auth, async (req: AuthenticatedRequest, res) => {
     if (!user) {
       const response: ApiResponse<null> = {
         success: false,
-        error: 'User not found'
+        error: '用户不存在'
       }
       return res.status(404).json(response)
     }
@@ -48,8 +48,8 @@ router.get('/profile', auth, async (req: AuthenticatedRequest, res) => {
   } catch (error) {
     const response: ApiResponse<null> = {
       success: false,
-      error: 'Server error',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      error: '服务器错误',
+      message: error instanceof Error ? error.message : '未知错误'
     }
     res.status(500).json(response)
   }
@@ -173,6 +173,27 @@ router.get('/finance-dashboard', auth, async (req: AuthenticatedRequest, res) =>
       error: '获取财务数据失败',
       message: error instanceof Error ? error.message : '未知错误'
     })
+  }
+})
+
+router.get('/monthly-trend', auth, async (req: AuthenticatedRequest, res) => {
+  try {
+    const userId = req.user?.id as string
+    const trendData = await MonthlyFinanceModel.getMonthlyTrend(userId)
+    
+    const response: ApiResponse<MonthlyTrendData[]> = {
+      success: true,
+      data: trendData
+    }
+    
+    res.json(response)
+  } catch (error) {
+    const response: ApiResponse<null> = {
+      success: false,
+      error: '获取月度趋势数据失败',
+      message: error instanceof Error ? error.message : '未知错误'
+    }
+    res.status(500).json(response)
   }
 })
 
