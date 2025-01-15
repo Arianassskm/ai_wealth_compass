@@ -11,7 +11,7 @@ router.get('/', auth, async (req: AuthenticatedRequest, res) => {
     if (!user) {
       const response: ApiResponse<null> = {
         success: false,
-        error: 'User not found'
+        error: '用户不存在'
       }
       return res.status(404).json(response)
     }
@@ -24,8 +24,8 @@ router.get('/', auth, async (req: AuthenticatedRequest, res) => {
   } catch (error) {
     const response: ApiResponse<null> = {
       success: false,
-      error: 'Server error',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      error: '服务错误',
+      message: error instanceof Error ? error.message : '未知错误'
     }
     res.status(500).json(response)
   }
@@ -37,7 +37,7 @@ router.put('/', auth, async (req: AuthenticatedRequest, res) => {
     if (!updatedUser) {
       const response: ApiResponse<null> = {
         success: false,
-        error: 'User not found'
+        error: '用户不存在'
       }
       return res.status(404).json(response)
     }
@@ -50,8 +50,8 @@ router.put('/', auth, async (req: AuthenticatedRequest, res) => {
   } catch (error) {
     const response: ApiResponse<null> = {
       success: false,
-      error: 'Server error',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      error: '服务错误',
+      message: error instanceof Error ? error.message : '未知错误'
     }
     res.status(500).json(response)
   }
