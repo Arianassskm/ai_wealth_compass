@@ -23,7 +23,7 @@ import { config } from '@/config'
 import OpenAI from 'openai';
 
 type PaymentMethod = 'one-time' | 'installment' | null
-type DecisionType = 'approved' | 'caution' | 'warning'
+type DecisionType = 'approved' | 'caution' | 'warning' | 'pending' | string;
 
 // 初始化 OpenAI 客户端
 const openai = new OpenAI({
@@ -55,6 +55,41 @@ const expenseTypeMap: Record<string, string> = {
   other: '其他支出'
 }
 
+// 添加评估历史类型定义
+interface EvaluationHistory {
+  id: string
+  expenseType: string
+  amount: number
+  result: string
+  description: string
+  createdAt: string
+}
+
+interface PaginatedResponse {
+  total: number
+  list: EvaluationHistory[]
+  page: number
+  pageSize: number
+}
+
+// 添加格式化函数
+const formatAmount = (amount: number): string => {
+  return new Intl.NumberFormat('zh-CN', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount);
+};
+
+const formatDate = (dateStr: string): string => {
+  return new Date(dateStr).toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
 function AIEvaluationHistoryItem({ id, label, time, amount, decision }: { 
   id: string
   label: string
@@ -66,23 +101,35 @@ function AIEvaluationHistoryItem({ id, label, time, amount, decision }: {
 
   const getDecisionIcon = () => {
     switch (decision) {
-      case 'approved':
+      case '通过':
         return <CheckCircle className="w-5 h-5 text-green-600" />
-      case 'caution':
+      case '谨慎':
         return <AlertTriangle className="w-5 h-5 text-yellow-600" />
-      case 'warning':
+      case '警告':
         return <XCircle className="w-5 h-5 text-red-600" />
+      case '等待中':
+        return <Clock className="w-5 h-5 text-gray-600" />
+      case '不通过':
+        return <XCircle className="w-5 h-5 text-red-600" />
+      default:
+        return <Clock className="w-5 h-5 text-gray-600" />
     }
   }
 
   const getDecisionText = () => {
     switch (decision) {
-      case 'approved':
+      case '通过':
         return '通过'
-      case 'caution':
+      case '谨慎':
         return '谨慎'
-      case 'warning':
+      case '警告':
         return '警告'
+      case '不通过':
+        return '不通过'
+      case '等待中':
+        return '等待中'
+      default:
+        return decision
     }
   }
 
@@ -102,7 +149,7 @@ function AIEvaluationHistoryItem({ id, label, time, amount, decision }: {
       </div>
       <div className="text-right">
         <div className="font-medium text-gray-900">¥{amount}</div>
-        <div className="text-sm text-gray-500">{getDecisionText()}</div>
+        <div className="text-sm text-gray-500">{decision}</div>
       </div>
     </div>
   )
@@ -111,46 +158,39 @@ function AIEvaluationHistoryItem({ id, label, time, amount, decision }: {
 export default function DecisionsPage() {
   const { token } = useAuthContext()
   const [loading, setLoading] = useState(false)
+  const [evaluationHistory, setEvaluationHistory] = useState<EvaluationHistory[]>([])
 
+  // 添加获取评估历史的逻辑
   useEffect(() => {
-    const getAIDecision = async () => {
+    const fetchEvaluationHistory = async () => {
       try {
-        setLoading(true)
-        const response = await fetchApi(config.apiEndpoints.evaluations.create, {
-          method: 'POST',
+        const response = await fetchApi(config.apiEndpoints.evaluations.history, {
+          method: 'GET',
           headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            type: 'investment_advice',
-            accounts: [
-              {
-                name: '投资账户',
-                balance: 50000,
-                purpose: '储蓄投资',
-                description: '长期理财'
-              }
-            ],
-            analysis: {
-              totalBalance: 50000,
-              savingsRatio: 1,
-              riskLevel: 'low',
-              suggestions: []
-            }
-          }),
-          token
+            'Authorization': `Bearer ${token}`
+          }
         })
 
-        console.log('AI Decision Response:', response)
+        if (!response.success) {
+          throw new Error(response.error || '获取历史记录失败')
+        }
+
+        const data = response.data as PaginatedResponse
+        setEvaluationHistory(data.list)
       } catch (error) {
-        console.error('AI Decision Error:', error)
+        console.error('Failed to fetch evaluations:', error)
+        toast({
+          variant: "destructive",
+          title: "加载失败",
+          description: "获取评估历史失败，请稍后重试"
+        })
       } finally {
         setLoading(false)
       }
     }
 
-    if (token) {  // 只在有 token 时调用
-      getAIDecision()
+    if (token) {
+      fetchEvaluationHistory()
     }
   }, [token])
 
@@ -409,34 +449,21 @@ export default function DecisionsPage() {
           <h2 className="text-xl font-semibold mb-4 text-gray-900">AI评估历史</h2>
           <ScrollArea className="h-64 w-full pr-4">
             <div className="space-y-4">
-              <AIEvaluationHistoryItem 
-                id="1"
-                label="意外医疗"
-                time="2023-05-25 14:30"
-                amount="500.00"
-                decision="approved"
-              />
-              <AIEvaluationHistoryItem 
-                id="2"
-                label="日常购物"
-                time="2023-05-24 10:15"
-                amount="200.50"
-                decision="approved"
-              />
-              <AIEvaluationHistoryItem 
-                id="3"
-                label="娱乐消费"
-                time="2023-05-20 20:00"
-                amount="1,000.00"
-                decision="caution"
-              />
-              <AIEvaluationHistoryItem 
-                id="4"
-                label="奢侈品购买"
-                time="2023-05-18 16:45"
-                amount="5,000.00"
-                decision="warning"
-              />
+              {evaluationHistory.map((evaluation) => (
+                <AIEvaluationHistoryItem 
+                  key={evaluation.id}
+                  id={evaluation.id}
+                  label={evaluation.description || '未知消费'}
+                  time={formatDate(evaluation.createdAt)}
+                  amount={formatAmount(evaluation.amount)}
+                  decision={evaluation.result as DecisionType}
+                />
+              ))}
+              {evaluationHistory.length === 0 && !loading && (
+                <div className="text-center text-gray-500 py-4">
+                  暂无评估记录
+                </div>
+              )}
             </div>
             <ScrollBar />
           </ScrollArea>

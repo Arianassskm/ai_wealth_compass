@@ -5,6 +5,10 @@ import Image from 'next/image'
 import { Send, ArrowLeft } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { config } from '@/config'
+import { fetchApi } from '@/lib/api'
+import { useAuthContext } from '@/providers/auth-provider'
+import { toast } from 'sonner'
 import {
   Select,
   SelectContent,
@@ -21,6 +25,62 @@ import { CollapsibleSection } from '@/components/collapsible-section'
 const commonRelationships = [
   "亲戚", "朋友", "同事", "邻居", "同学", "长辈", "晚辈"
 ]
+const remindText = `您是一位专业的人情往来顾问，帮助用户在社交礼尚往来中做出恰当的决定。您需要综合考虑地域特点、通货膨胀、关系亲疏、场合性质等多个因素，给出合理的建议。
+
+您将收到以下信息：
+
+<location>
+省份：{$PROVINCE}
+城市：{$CITY}
+</location>
+
+<event>
+发生时间：{$DATE}
+礼金/礼物价值：{$GIFT_VALUE}
+关系：{$RELATIONSHIP}
+场景：{$OCCASION}
+上次收到的礼金价值：{$PREVIOUS_GIFT_VALUE}
+</event>
+
+请您遵循以下步骤进行分析：
+
+1. 首先在<analysis>标签内进行分析：
+   - 考虑地域经济水平和当地礼俗
+   - 评估时间跨度和通货膨胀影响
+   - 分析关系亲疏程度
+   - 考虑场合的正式程度
+   - 参考往来历史
+
+2. 然后在<recommendation>标签内提供建议，包含：
+   - 建议的礼金/礼物范围 💰
+   - 具体的礼物选择建议（如适用）🎁
+   - 送礼时机和方式的建议 ⏰
+   - 礼节注意事项 📝
+
+3. 最后在<summary>标签内总结关键建议，用简洁的要点形式呈现。
+
+请确保：
+- 使用emoji增加可读性
+- 保持礼貌友好的语气
+- 考虑中国传统文化习俗
+- 给出实际可操作的建议
+
+请直接开始您的分析和建议。`
+
+const userText = `<location>
+省份：{$PROVINCE}
+城市：{$CITY}
+</location>
+
+<event>
+发生时间：{$DATE}
+礼金/礼物价值：{$GIFT_VALUE}
+关系：{$RELATIONSHIP}
+场景：{$OCCASION}
+上次收到的礼金价值：{$PREVIOUS_GIFT_VALUE}
+</event>
+
+请根据以上信息给出建议。`
 
 const scenarioItems = [
   { title: "人生重大时刻", value: "life_milestone" },
@@ -31,8 +91,20 @@ const scenarioItems = [
   { title: "乔迁新居", value: "housewarming" },
 ]
 
+// 添加类型定义
+type PromptParams = {
+  PROVINCE: string;
+  CITY: string;
+  DATE: string;
+  GIFT_VALUE: string;
+  RELATIONSHIP: string;
+  OCCASION: string;
+  PREVIOUS_GIFT_VALUE: string;
+};
+
 export default function SocialReciprocityPage() {
   const router = useRouter()
+  const { token } = useAuthContext()
   const [message, setMessage] = useState('')
   const [selectedProvince, setSelectedProvince] = useState('')
   const [selectedCity, setSelectedCity] = useState('')
@@ -50,6 +122,7 @@ export default function SocialReciprocityPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [eventTime, setEventTime] = useState('')
   const [lastGiftValue, setLastGiftValue] = useState('')
+  const [isFormExpanded, setIsFormExpanded] = useState(true)
 
   const handleProvinceChange = (province: string) => {
     setSelectedProvince(province)
@@ -58,36 +131,122 @@ export default function SocialReciprocityPage() {
 
   const availableCities = provinces.find(p => p.name === selectedProvince)?.cities || []
 
-  const handleSendMessage = async (content: string) => {
-    if (!content.trim()) return
+  const handleSendMessage = async (messages: { role: string; content: string }[]) => {
+    if (!messages?.length) return;
 
     const userMessage: ChatMessage = {
       id: uuidv4(),
-      content: content,
+      content: "开始分析...",
       isUser: true,
       timestamp: new Date()
-    }
-    setMessages(prev => [...prev, userMessage])
-    setMessage('')
-    setIsSubmitting(true)
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setIsSubmitting(true);
 
-    setTimeout(() => {
+    try {
+      const response = await fetchApi(config.apiEndpoints.ai.chat, {
+        method: 'POST',
+        headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+        body: JSON.stringify({ 
+          messages: messages,
+        })
+      });
+
+      const content = response.choices[0]?.message?.content || '';
+      // 解析并格式化内容
+      const formattedContent = content
+        // 先处理标签
+        .replace(/<analysis>\n-/g, '\n\n📊 分析：\n')
+        .replace(/<\/analysis>/g, '\n')
+        .replace(/\n-/g, '\n')
+        // 处理加粗文本
+        .replace(/\*\*(.*?)\*\*/g, '\n**$1**')
+        // 处理其他标签
+        .replace(/<recommendation>\n-/g, '\n\n💡 建议：\n')
+        .replace(/<recommendation>/g, '\n\n💡 建议：\n')
+        .replace(/<\/recommendation>/g, '\n')
+        .replace(/<summary>/g, '\n\n📝 总结：\n')
+        .replace(/<summary>\n-/g, '\n\n📝 总结：\n')
+        .replace(/<\/summary>/g, '\n')
+        // 处理每行内容
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line)
+        .join('\n')
+        // 确保段落之间有足够的空行
+        .replace(/\n{3,}/g, '\n\n');
+      
       const aiMessage: ChatMessage = {
         id: uuidv4(),
-        content: "根据您提供的信息，考虑到时间、通货膨胀等因素，我建议您的回礼金额在上次收到礼金的基础上适当增加10-15%。这样既能体现您的诚意，又不会给自己造成过大压力。您觉得这个建议如何？",
+        content: formattedContent,
         isUser: false,
         timestamp: new Date()
-      }
-      setMessages(prev => [...prev, aiMessage])
-      setIsSubmitting(false)
-    }, 1000)
-  }
+      };
+      
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('分析失败:', error);
+      const errorMessage: ChatMessage = {
+        id: uuidv4(),
+        content: "抱歉，分析过程出现错误，请稍后重试。",
+        isUser: false,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-  const handleSubmitInfo = () => {
-    const location = selectedCity ? `${selectedProvince}${selectedCity}` : selectedProvince
-    const summary = `我的情况是：发生地点在${location}，发生时间是${eventTime}，${event ? `涉及金额或礼物是${event}，` : ''}与对方的关系是${relationship}，场景是${scene}，上次收到的礼金价值约${lastGiftValue}元。请根据这些信息给我一些建议，考虑时间和通货膨胀因素。`
-    handleSendMessage(summary)
-  }
+  const handleSubmitInfo = async () => {
+    // 验证表单
+    const promptParams: PromptParams = {
+      PROVINCE: selectedProvince,
+      CITY: selectedCity,
+      DATE: eventTime,
+      GIFT_VALUE: event,
+      RELATIONSHIP: relationship,
+      OCCASION: scene,
+      PREVIOUS_GIFT_VALUE: lastGiftValue
+    };
+
+    if (!promptParams.PROVINCE || !promptParams.CITY || !promptParams.DATE || 
+        !promptParams.GIFT_VALUE || !promptParams.RELATIONSHIP || !promptParams.OCCASION) {
+      toast.error('请填写完整信息');
+      return;
+    }
+
+    // 先收起表单并设置提交状态
+    setIsFormExpanded(false);
+    setIsSubmitting(true);
+
+    try {
+      // 构建并发送消息
+      const filledPrompt = userText.replace(
+        /\{(\$[A-Z_]+)\}/g,
+        (_, key) => promptParams[key.substring(1)] || '未填写'
+      );
+
+      const messages = [
+        {
+          role: 'system',
+          content: remindText
+        },
+        {
+          role: 'user',
+          content: filledPrompt
+        }
+      ];
+
+      await handleSendMessage(messages);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-emerald-400 to-blue-400 flex flex-col">
@@ -130,6 +289,8 @@ export default function SocialReciprocityPage() {
 
             {/* Input Form */}
             <CollapsibleSection
+              isExpanded={isFormExpanded}
+              onToggle={() => setIsFormExpanded(!isFormExpanded)}
               previewContent={
                 <div className="space-y-4">
                   <h3 className="text-base font-medium">人情信息</h3>
@@ -283,6 +444,12 @@ export default function SocialReciprocityPage() {
           </div>
         </div>
       </div>
+
+      {isSubmitting && (
+        <div className="flex justify-center my-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        </div>
+      )}
     </main>
   )
 }

@@ -5,24 +5,24 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronUp, ChevronDown } from 'lucide-react'
 
 interface CollapsibleSectionProps {
-  children: React.ReactNode
-  initialState?: 'expanded' | 'collapsed'
-  previewContent?: React.ReactNode
+  children: React.ReactNode;
+  previewContent: React.ReactNode;
+  isExpanded?: boolean;
+  onToggle?: () => void;
 }
 
 export function CollapsibleSection({ 
   children, 
-  initialState = 'expanded', 
-  previewContent 
+  previewContent, 
+  isExpanded: expanded = true, 
+  onToggle 
 }: CollapsibleSectionProps) {
-  const [isExpanded, setIsExpanded] = useState(initialState === 'expanded')
-
   return (
     <div className="relative bg-white rounded-2xl shadow-sm overflow-hidden">
       <div className="p-4">
         {previewContent}
         <AnimatePresence initial={false}>
-          {isExpanded && (
+          {expanded && (
             <motion.div
               initial="collapsed"
               animate="expanded"
@@ -41,9 +41,9 @@ export function CollapsibleSection({
       </div>
       <button
         className="w-full py-2 px-4 bg-gray-100 text-sm font-medium text-gray-600 hover:bg-gray-200 transition-colors flex items-center justify-center"
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={onToggle}
       >
-        {isExpanded ? (
+        {expanded ? (
           <>
             收起 <ChevronUp size={16} className="ml-1" />
           </>

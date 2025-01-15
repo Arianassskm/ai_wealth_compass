@@ -23,7 +23,8 @@ export const config = {
       list: '/v1/evaluations',
       create: '/v1/evaluations',
       getById: (id: string) => `/v1/evaluations/${id}`,
-      save: '/v1/evaluations/save'
+      save: '/v1/evaluations/save',
+      history: '/v1/evaluations/history'
     },
     ai: {
       chat: '/v3/chat/completions'

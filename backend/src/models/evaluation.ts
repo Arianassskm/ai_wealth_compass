@@ -7,14 +7,34 @@ export interface Evaluation {
   expenseType: string
   amount: number
   result: string
+  description: string
   createdAt: string
-  description?: string
   paymentMethod: 'one-time' | 'installment'
   installmentInfo?: {
     value: number
     unit: 'month' | 'year'
     monthlyPayment: number
   }
+  boardDecisions: {
+    [key: string]: {
+      score: number
+      comment: string
+      emoji: string
+    }
+  }
+  finalSuggestion: string
+  financialAssessment: {
+    necessity: number
+    urgency: number
+    shortTermImpact: string
+    longTermImpact: string
+    riskLevel: string
+  }
+  valueComparisons: Array<{
+    category: string
+    quantity: string
+    price?: string
+  }>
 }
 
 class EvaluationModelClass {
