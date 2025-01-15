@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Send, ArrowLeft } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { config } from '@/config'
 import {
   Select,
   SelectContent,
@@ -15,7 +16,80 @@ import {
 import { useRouter } from 'next/navigation'
 import { Message, type ChatMessage } from '@/components/chat/message'
 import { v4 as uuidv4 } from 'uuid'
+import { fetchApi } from '@/lib/api'
+import { useAuthContext } from '@/providers/auth-provider'
+import { toast } from 'sonner'
 
+const remindText=`你是一个专业的决策分析助手，负责帮助用户分析投资或辞职决定的可行性。请根据用户提供的信息进行分析并给出建议。
+
+输入信息如下：
+<decision_type>{$DECISION_TYPE}</decision_type>
+<required_amount>{$REQUIRED_AMOUNT}</required_amount>
+<duration>{$DURATION}</duration>
+<current_savings>{$CURRENT_SAVINGS}</current_savings>
+
+分析步骤：
+1. 首先在<思考>标签内进行初步计算：
+- 计算储蓄缺口 = 所需金额 - 当前储蓄
+- 计算每月所需金额 = 储蓄缺口/维持月数
+- 评估风险等级（低/中/高）
+
+2. 在<分析>标签内提供详细分析，包括：
+- 财务可行性评估
+- 风险分析
+- 建议的准备工作
+- 替代方案
+
+3. 在<建议>标签内给出最终建议，包括：
+- 明确的行动建议
+- 时间规划
+- 注意事项
+
+输出格式要求：
+1. 使用表格呈现关键数据
+2. 用适当的emoji突出重点
+3. 分点列出建议
+4. 使用醒目的符号标示风险等级
+5. 根据决策类型提供不同的专业建议
+
+如果是投资决策，重点关注：
+- 投资回报率分析
+- 风险承受能力评估
+- 投资组合建议
+- 分散投资策略
+
+如果是辞职决策，重点关注：
+- 职业发展影响
+- 生活成本评估
+- 再就业计划
+- 过渡期管理策略
+
+最后，将完整回答放在<answer>标签内。确保建议具体、实用且易于理解。
+
+示例输出格式：
+📊 基本情况分析
+[数据表格展示]
+
+⚖️ 可行性评估
+- 评估内容1
+- 评估内容2
+
+⚠️ 风险等级：[低/中/高]
+- 风险点1
+- 风险点2
+
+💡 建议方案
+1. 建议1
+2. 建议2
+
+📝 行动计划
+[具体时间表]
+
+❗注意事项
+- 注意点1
+- 注意点2
+
+请确保分析过程细致，建议明确且有操作性，并适当使用emoji增强可读性。分析需要保持专业性和客观性，同时照顾到用户的具体情况。` 
 const investmentTypes = [
   { title: "股票", value: "stocks" },
   { title: "基金", value: "funds" },
@@ -30,8 +104,16 @@ const riskLevels = [
   { title: "进取型", value: "very_aggressive" },
 ]
 
+type PromptParams = {
+  DECISION_TYPE: string;
+  REQUIRED_AMOUNT: string;
+  DURATION: string;
+  CURRENT_SAVINGS: string;
+};
+
 export default function InvestmentAnalysisPage() {
   const router = useRouter()
+  const { token } = useAuthContext()
   const [message, setMessage] = useState('')
   const [amount, setAmount] = useState('')
   const [duration, setDuration] = useState('')
@@ -40,35 +122,88 @@ export default function InvestmentAnalysisPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSendMessage = async (content: string) => {
-    if (!content.trim()) return
-
+  const handleSendMessage = async (messages: { role: string; content: string }[]) => {
+    if (!messages?.length) return;
+    console.log(messages)
     const userMessage: ChatMessage = {
       id: uuidv4(),
-      content: content,
+      content: "开始分析...",
       isUser: true,
       timestamp: new Date()
-    }
-    setMessages(prev => [...prev, userMessage])
-    setMessage('')
-    setIsSubmitting(true)
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setIsSubmitting(true);
 
-    setTimeout(() => {
+    try {
+      const response = await fetchApi(config.apiEndpoints.ai.chat, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          messages: messages
+        })
+      });
+
+      const content = response.choices[0]?.message?.content || '';
+      
       const aiMessage: ChatMessage = {
         id: uuidv4(),
-        content: "根据您的投资需求，我建议您可以考虑以下投资组合：40%配置低风险的债券基金，40%配置中等风险的混合基金，20%配置高风险高收益的股票。这样的配置既能保证稳定收益，又有一定的升值空间。您觉得这个建议如何？",
+        content: content,
         isUser: false,
         timestamp: new Date()
-      }
-      setMessages(prev => [...prev, aiMessage])
-      setIsSubmitting(false)
-    }, 1000)
-  }
+      };
+      
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('分析失败:', error);
+      const errorMessage: ChatMessage = {
+        id: uuidv4(),
+        content: "抱歉，分析过程出现错误，请稍后重试。",
+        isUser: false,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-  const handleSubmitInfo = () => {
-    const summary = `我计划投资${amount}元，期限为${duration}，风险承受能力为${riskTolerance}，投资类型偏好${investmentType}。请为我提供投资建议。`
-    handleSendMessage(summary)
-  }
+  const handleSubmitInfo = async () => {
+    const promptParams: PromptParams = {
+      DECISION_TYPE: investmentType,
+      REQUIRED_AMOUNT: amount,
+      DURATION: duration,
+      CURRENT_SAVINGS: '0' // 可以添加一个字段收集这个信息
+    };
+
+    if (!promptParams.DECISION_TYPE || !promptParams.REQUIRED_AMOUNT || 
+        !promptParams.DURATION || !riskTolerance) {
+      toast.error('请填写完整信息');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const messages = [
+        {
+          role: 'system',
+          content: remindText
+        },
+        {
+          role: 'user',
+          content: `我计划投资${amount}元，期限为${duration}，风险承受能力为${riskTolerance}，投资类型偏好${investmentType}。请为我提供投资建议。`
+        }
+      ];
+
+      await handleSendMessage(messages);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-green-400 to-blue-400">

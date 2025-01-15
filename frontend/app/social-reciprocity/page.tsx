@@ -21,6 +21,7 @@ import { Message, type ChatMessage } from '@/components/chat/message'
 import { v4 as uuidv4 } from 'uuid'
 import { provinces } from '@/data/china-regions'
 import { CollapsibleSection } from '@/components/collapsible-section'
+import { FormattedMessage } from '@/components/formatted-message'
 
 const commonRelationships = [
   "亲戚", "朋友", "同事", "邻居", "同学", "长辈", "晚辈"
@@ -249,10 +250,20 @@ export default function SocialReciprocityPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-emerald-400 to-blue-400 flex flex-col">
+    <main className="min-h-screen bg-gradient-to-br from-emerald-400 to-blue-400 flex flex-col relative">
+      {/* 添加加载遮罩 */}
+      {isSubmitting && (
+        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-4 shadow-lg flex items-center gap-3">
+            <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+            <span className="text-sm text-gray-600">分析中...</span>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col h-screen">
         {/* Header */}
-        <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm">
+        <header className="fixed top-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-sm">
           <div className="max-w-md mx-auto px-4 py-3 flex items-center">
             <Button
               variant="ghost"
@@ -407,8 +418,8 @@ export default function SocialReciprocityPage() {
             {/* Chat Messages */}
             <div className="space-y-4 mt-6">
               {messages.map((msg) => (
-                <Message 
-                  key={msg.id} 
+                <FormattedMessage
+                  key={msg.id}
                   message={msg}
                   assistantImage="/placeholder.svg?height=32&width=32"
                 />
@@ -444,12 +455,6 @@ export default function SocialReciprocityPage() {
           </div>
         </div>
       </div>
-
-      {isSubmitting && (
-        <div className="flex justify-center my-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-        </div>
-      )}
     </main>
   )
 }

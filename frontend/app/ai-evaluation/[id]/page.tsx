@@ -212,8 +212,25 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
   useEffect(() => {
     const fetchEvaluation = async () => {
       try {
+        console.log()
         setLoading(true);
-        
+        // 如果有历史记录ID，先尝试获取历史数据
+        if (!searchParams.get('labelType')) {
+          const historyResponse = await fetchApi(config.apiEndpoints.evaluations.getById(params.id), {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          if (historyResponse.success && historyResponse.data) {
+            setEvaluation(historyResponse.data);
+            setLoading(false);
+            return;
+          }
+        }
+
+        // 如果是新评估或获取历史失败，调用AI接口
         // 构建用户信息文本
         const userInfoText = `用户基本信息：
         - 年龄段：${userInfo?.age_group || '未知'}
@@ -540,7 +557,7 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
               <li className="bg-white rounded-lg p-4 shadow-sm">
                 <h4 className="font-medium text-gray-800 mb-2">紧急性评分</h4>
                 <p className="text-sm text-gray-600">{evaluation?.financialAssessment.urgency}/10</p>
-              </li>
+                </li>
             </ul>
           </CardContent>
         </Card>
