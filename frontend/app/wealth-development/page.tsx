@@ -316,29 +316,6 @@ export default function WealthDevelopmentPage() {
 
       setMessages(prev => [...prev, assistantMessage]);
 
-      // 保存评估历史
-      await fetchApi(
-        config.apiEndpoints.evaluations.save,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            type: 'wealth_development',
-            details: {
-              development_type: developmentType,
-              current_income: Number(currentIncome),
-              target_income: Number(targetIncome),
-              timeframe,
-              skills
-            },
-            result: assistantMessage.content
-          })
-        }
-      );
-
     } catch (error) {
       console.error('Analysis error:', error);
       const errorMessage: ChatMessage = {
