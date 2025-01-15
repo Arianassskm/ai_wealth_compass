@@ -9,6 +9,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowUpRight, ArrowDownRight, Save, FileText, ArrowLeft, Info, Edit2, Wallet, CreditCard, Building, Briefcase, Car, DollarSign, BookOpen, ShoppingCart, PiggyBank, Gift, Image, TrendingUp, X, Trash2, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts'
+import { fetchApi } from '@/lib/api'
+import { config } from '@/config'
+import { useAuthContext } from '@/providers/auth-provider'
 import {
  HoverCard,
  HoverCardContent,
@@ -41,41 +44,53 @@ const icons = {
  TrendingUp
 }
 
+interface EditingState {
+  id: string | null;
+  field: 'name' | 'value' | null;
+}
+
 export default function WealthCompositionPage() {
  const router = useRouter()
- const [wealthComponents, setWealthComponents] = useState([
-   { id: '1', name: '收入', value: 150000, icon: 'Briefcase' },
-   { id: '2', name: '固定资产', value: 1000000, icon: 'Building' },
-   { id: '3', name: '金融资产', value: 500000, icon: 'CreditCard' },
-   { id: '4', name: '储蓄', value: 250000, icon: 'PiggyBank' },
- ])
+ const { token } = useAuthContext()
+ const [wealthComponents, setWealthComponents] = useState<WealthComponent[]>([])
 
- const [editingId, setEditingId] = useState<string | null>(null)
+ const [editing, setEditing] = useState<EditingState>({ id: null, field: null });
  const inputRef = useRef<HTMLInputElement>(null)
 
  const totalAssetValue = wealthComponents.reduce((sum, component) => sum + component.value, 0)
  const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#6366F1', '#EC4899', '#8B5CF6', '#14B8A6', '#F43F5E', '#22C55E']
 
  useEffect(() => {
-   if (editingId && inputRef.current) {
+   if (editing.id && inputRef.current) {
      inputRef.current.focus()
    }
- }, [editingId])
+ }, [editing.id])
 
  const formatPercentage = (value: number, total: number) => {
    return ((value / total) * 100).toFixed(1) + '%'
  }
 
- const handleUpdateComponent = (id: string, newValue: number) => {
+ const handleUpdateComponent = (id: string, updates: Partial<WealthComponent>) => {
    setWealthComponents(prev =>
-     prev.map(c => c.id === id ? { ...c, value: newValue } : c)
-   )
-   setEditingId(null)
+     prev.map(c => {
+       if (c.id === id) {
+         if ('value' in updates && typeof updates.value === 'string') {
+           updates.value = parseFloat(updates.value) || 0;
+         }
+         return { ...c, ...updates };
+       }
+       return c;
+     })
+   );
+ };
+
+ const handleBlur = (field: 'name' | 'value') => {
+   setEditing(prev => ({ ...prev, field: null }));
    toast({
      title: "更新成功",
      description: `资产数据已成功更新。`,
-   })
- }
+   });
+ };
 
  const handleDeleteComponent = (id: string) => {
    setWealthComponents(prev => prev.filter(c => c.id !== id))
@@ -93,25 +108,104 @@ export default function WealthCompositionPage() {
      icon: 'Wallet'
    }
    setWealthComponents(prev => [...prev, newComponent])
-   setEditingId(newComponent.id)
+   setEditing({ id: newComponent.id, field: 'name' })
  }
 
  useEffect(() => {
-   const fetchAIEstimation = async () => {
+   const fetchWealthData = async () => {
      try {
-       const response = await fetch('/api/v1/user/profile')
-       const data = await response.json()
+       const response = await fetchApi(config.apiEndpoints.user.profile, { token });
+       const data = await response.data;
        
-       if (data.ai_evaluation_details?.wealth_composition) {
-         setWealthComponents(data.ai_evaluation_details.wealth_composition)
+       if (data.ai_evaluation_details?.wealth_composition?.components) {
+         const transformedComponents = data.ai_evaluation_details.wealth_composition.components.map((comp: any, index: number) => ({
+           id: index.toString(),
+           name: comp.type,
+           value: comp.amount,
+           icon: getIconForAssetType(comp.type)
+         }));
+         setWealthComponents(transformedComponents);
        }
      } catch (error) {
-       console.error('Error fetching AI estimation:', error)
+       console.error('获取财富构成数据失败:', error);
+       toast({
+         title: "获取数据失败",
+         description: "无法加载财富构成数据，请稍后重试",
+         variant: "destructive"
+       });
      }
-   }
+   };
 
-   fetchAIEstimation()
- }, [])
+   fetchWealthData();
+ }, [token]);
+
+ const getIconForAssetType = (type: string): keyof typeof icons => {
+   const iconMap: Record<string, keyof typeof icons> = {
+     cash: 'Wallet',
+     stocks: 'TrendingUp',
+     bonds: 'BookOpen',
+     real_estate: 'Building',
+     other_investments: 'Briefcase'
+   } as const;
+   
+   return iconMap[type.toLowerCase()] || 'Wallet';
+ };
+
+ const updateWealthComposition = async (wealthData: WealthComposition) => {
+   try {
+     const response = await fetchApi(config.apiEndpoints.user.wealthComposition, {
+       method: 'PUT',
+       headers: {
+         'Content-Type': 'application/json',
+       },
+       token,
+       body: JSON.stringify(wealthData)
+     });
+
+     if (!response.success) {
+       throw new Error(response.error || '更新财富构成失败');
+     }
+     
+     return response.data;
+   } catch (error) {
+     console.error('更新财富构成失败:', error);
+     throw error;
+   }
+ };
+
+ const handleSaveAll = async () => {
+   try {
+     const wealthData: WealthComposition = {
+       last_updated: new Date().toISOString(),
+       components: wealthComponents.map(comp => ({
+         type: comp.name,
+         percentage: (comp.value / totalAssetValue) * 100,
+         amount: comp.value,
+         risk_level: "medium",
+         liquidity: "medium"
+       })),
+       analysis: {
+         risk_score: 65,
+         diversification_score: 80,
+         liquidity_score: 70,
+         recommendations: []
+       }
+     };
+
+     await updateWealthComposition(wealthData);
+     toast({
+       title: "保存成功",
+       description: "财富构成数据已更新到数据库",
+     });
+   } catch (error) {
+     console.error('保存财富构成失败:', error);
+     toast({
+       title: "保存失败",
+       description: "请稍后重试",
+       variant: "destructive"
+     });
+   }
+ };
 
  return (
    <AssistantLayout
@@ -184,37 +278,47 @@ export default function WealthCompositionPage() {
                  transition={{ duration: 0.3, delay: index * 0.1 }}
                >
                  <Card className="p-4">
-                   <div className="flex justify-between items-center mb-4">
+                   <div className="flex justify-between items-center mb-4" onClick={(e) => e.stopPropagation()}>
                      <div className="flex items-center gap-2">
                        {React.createElement(icons[component.icon], { className: "w-5 h-5 text-gray-600" })}
-                       <h3 className="font-semibold text-lg text-gray-900">
-                         {component.name}
-                         {component.name === '收入' && (
-                           <span className="text-xs text-gray-500 ml-1">(每月)</span>
-                         )}
-                       </h3>
-                     </div>
-                     <div className="flex items-center gap-2">
-                       {editingId === component.id ? (
+                       {editing.id === component.id && editing.field === 'name' ? (
                          <Input
                            ref={inputRef}
+                           type="text"
+                           value={component.name}
+                           onChange={(e) => handleUpdateComponent(component.id, { name: e.target.value })}
+                           onBlur={() => handleBlur('name')}
+                           className="w-32"
+                         />
+                       ) : (
+                         <h3 
+                           className="font-semibold text-lg text-gray-900 cursor-pointer" 
+                           onClick={() => setEditing({ id: component.id, field: 'name' })}
+                         >
+                           {component.name}
+                         </h3>
+                       )}
+                     </div>
+                     <div className="flex items-center gap-2">
+                       {editing.id === component.id && editing.field === 'value' ? (
+                         <Input
                            type="number"
                            value={component.value}
                            onChange={(e) => {
-                             const newValue = parseFloat(e.target.value);
-                             if (!isNaN(newValue)) {
-                               handleUpdateComponent(component.id, newValue);
-                             }
+                             const newValue = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                             handleUpdateComponent(component.id, { value: newValue });
                            }}
-                           onBlur={() => setEditingId(null)}
+                           onBlur={() => handleBlur('value')}
                            className="w-32 text-right"
                          />
                        ) : (
-                         <p className="text-xl font-bold">¥{component.value.toLocaleString()}</p>
+                         <p 
+                           className="text-xl font-bold cursor-pointer"
+                           onClick={() => setEditing({ id: component.id, field: 'value' })}
+                         >
+                           ¥{component.value.toLocaleString()}
+                         </p>
                        )}
-                       <Button variant="ghost" size="sm" onClick={() => setEditingId(component.id)}>
-                         <Edit2 className="w-4 h-4" />
-                       </Button>
                        <Button variant="ghost" size="sm" onClick={() => handleDeleteComponent(component.id)}>
                          <Trash2 className="w-4 h-4 text-red-500" />
                        </Button>
@@ -230,10 +334,19 @@ export default function WealthCompositionPage() {
                  </Card>
                </motion.div>
              ))}
-             <Button onClick={handleAddComponent} className="w-full">
+             <Button onClick={handleAddComponent} className="w-full mb-4">
                <Plus className="w-4 h-4 mr-2" />
                添加其他资产
              </Button>
+             <div className="flex justify-end">
+               <Button 
+                 onClick={handleSaveAll}
+                 className="bg-blue-600 hover:bg-blue-700 text-white"
+               >
+                 <Save className="w-4 h-4 mr-2" />
+                 保存到数据库
+               </Button>
+             </div>
            </div>
          ),
          defaultOpen: true,

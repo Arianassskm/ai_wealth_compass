@@ -76,6 +76,49 @@ interface User {
     presencePenalty: number
     systemPrompt: string
   }
+  
+  // AI 评估详情
+  ai_evaluation_details: {
+    budget_settings: {
+      total_budget: number;
+      categories: Array<{
+        name: string;
+        percentage: number;
+        color: string;
+      }>;
+      monthly_budget: {
+        income: number;
+        expenses: {
+          fixed: Record<string, number>;
+          variable: Record<string, number>;
+          savings: number;
+        };
+        current_month: string;
+        history: Array<{
+          month: string;
+          actual_expenses: number;
+          budget_compliance: number;
+        }>;
+      };
+    };
+    wealth_composition: {
+      last_updated: string;
+      components: Array<{
+        type: string;
+        percentage: number;
+        amount: number;
+        risk_level: string;
+        liquidity: string;
+      }>;
+      analysis: {
+        risk_score: number;
+        diversification_score: number;
+        liquidity_score: number;
+        recommendations: string[];
+      };
+    };
+    last_updated: string;
+  };
 }
 
 // 定义数据库结构
@@ -193,6 +236,30 @@ class UserModel {
         frequencyPenalty: 0.5,
         presencePenalty: 0.5,
         systemPrompt: '我是您的智能理财助手，可以为您提供个性化的理财建议。'
+      },
+      
+      ai_evaluation_details: {
+        budget_settings: {
+          total_budget: 0,
+          categories: [],
+          monthly_budget: {
+            income: 0,
+            expenses: { fixed: {}, variable: {}, savings: 0 },
+            current_month: new Date().toISOString().slice(0, 7),
+            history: []
+          }
+        },
+        wealth_composition: {
+          last_updated: new Date().toISOString(),
+          components: [],
+          analysis: {
+            risk_score: 0,
+            diversification_score: 0,
+            liquidity_score: 0,
+            recommendations: []
+          }
+        },
+        last_updated: new Date().toISOString()
       }
     }
     

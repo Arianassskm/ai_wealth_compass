@@ -6,6 +6,8 @@ import { AIConfigModel, AIConfig } from '../models/ai-config'
 import { MonthlyFinanceModel } from '../models/monthly-finance'
 import fs from 'fs/promises'
 import path from 'path'
+import { readFileSync, writeFileSync } from 'fs'
+import { join } from 'path'
 
 const router = Router()
 
@@ -39,6 +41,12 @@ router.get('/profile', auth, async (req: AuthenticatedRequest, res) => {
       disposable_income: {
         amount: currentAmount,
         growth_rate: growthRate
+      },
+      // 添加 AI 评估详情
+      ai_evaluation_details: {
+        budget_settings: user.ai_evaluation_details?.budget_settings || null,
+        wealth_composition: user.ai_evaluation_details?.wealth_composition || null,
+        last_updated: user.ai_evaluation_details?.last_updated || null
       }
     }
     
@@ -279,5 +287,99 @@ router.post('/calibrate/budget', auth, async (req: AuthenticatedRequest, res: Re
     });
   }
 });
+
+interface WealthComponent {
+  type: string;
+  percentage: number;
+  amount: number;
+  risk_level: string;
+  liquidity: string;
+}
+
+interface WealthComposition {
+  last_updated: string;
+  components: WealthComponent[];
+  analysis: {
+    risk_score: number;
+    diversification_score: number;
+    liquidity_score: number;
+    recommendations: string[];
+  };
+}
+
+router.put('/wealth-composition', auth, async (req: AuthenticatedRequest, res) => {
+  try {
+    const wealthComposition: WealthComposition = req.body;
+    const userId = req.user?.id;
+
+    // 读取用户数据
+    const dbPath = join(__dirname, '../../db/users.json');
+    const data = JSON.parse(readFileSync(dbPath, 'utf-8'));
+
+    // 查找并更新用户数据
+    const userIndex = data.users.findIndex((user: any) => user.id === userId);
+    if (userIndex === -1) {
+      return res.status(404).json({ error: '用户不存在' });
+    }
+
+    // 验证数据
+    if (!validateWealthComposition(wealthComposition)) {
+      return res.status(400).json({ error: '无效的财富构成数据' });
+    }
+
+    // 更新数据
+    data.users[userIndex].ai_evaluation_details.wealth_composition = {
+      ...wealthComposition,
+      last_updated: new Date().toISOString()
+    };
+
+    // 保存到文件
+    writeFileSync(dbPath, JSON.stringify(data, null, 2));
+
+    res.json({
+      success: true,
+      message: '财富构成更新成功',
+      data: data.users[userIndex].ai_evaluation_details.wealth_composition
+    });
+
+  } catch (error) {
+    console.error('更新财富构成失败:', error);
+    res.status(500).json({
+      error: '服务器错误',
+      message: '更新财富构成失败'
+    });
+  }
+});
+
+// 添加数据验证函数
+function validateWealthComposition(data: WealthComposition): boolean {
+  try {
+    // 验证基本结构
+    if (!data.components || !Array.isArray(data.components)) {
+      return false;
+    }
+
+    // 验证组件数据
+    const totalPercentage = data.components.reduce(
+      (sum, comp) => sum + comp.percentage,
+      0
+    );
+    if (Math.abs(totalPercentage - 100) > 0.01) { // 允许 0.01% 的误差
+      return false;
+    }
+
+    // 验证每个组件的必要字段
+    return data.components.every(comp => 
+      typeof comp.type === 'string' &&
+      typeof comp.percentage === 'number' &&
+      typeof comp.amount === 'number' &&
+      typeof comp.risk_level === 'string' &&
+      typeof comp.liquidity === 'string'
+    );
+
+  } catch (error) {
+    return false;
+  }
+}
 
 export default router 

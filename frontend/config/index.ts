@@ -13,7 +13,9 @@ export const config = {
       monthlyTrend: '/v1/user/monthly-trend',
       budgetSettings: '/v1/user/budget-settings',
       updateBudgetSettings: (id:string) => `/v1/user/calibrate/budget/${id}`,
-      calibrateBudget: '/v1/user/calibrate/budget'
+      calibrateBudget: '/v1/user/calibrate/budget',
+      updateWealthComposition: (id:string)=>`/v1/user/wealth-composition/${id}`,
+      wealthComposition: '/v1/user/wealth-composition'
     },
     onboarding: '/v1/onboarding',
     accounts: {
