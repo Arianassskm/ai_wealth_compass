@@ -8,5 +8,6 @@ export const config = {
   cors: {
     origin: process.env.CORS_ORIGIN || 'http://localhost:3000'
   },
-  env: process.env.NODE_ENV || 'development'
+  env: process.env.NODE_ENV || 'development',
+  arkApiKey: process.env.ARK_API_KEY || '095413e9-f942-4689-b5ad-e9b207960330'
 } as const 
