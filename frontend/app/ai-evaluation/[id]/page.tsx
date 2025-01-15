@@ -284,6 +284,40 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
             valueComparisons: extractValueComparisons(aiContent)
           };
 
+          // 保存评估结果到数据库
+          try {
+            const saveResponse = await fetchApi(config.apiEndpoints.evaluations.save, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                expenseType: searchParams.get('labelType') || '',
+                amount: parseFloat(searchParams.get('amount') || '0'),
+                result: parsedEvaluation.result,
+                description: searchParams.get('labelName') || '',
+                paymentMethod: searchParams.get('paymentMethod') === 'installment' ? 'installment' : 'one-time',
+                installmentInfo: searchParams.get('paymentMethod') === 'installment' ? {
+                  value: parseInt(searchParams.get('installmentValue') || '0'),
+                  unit: searchParams.get('installmentUnit') || 'month',
+                  monthlyPayment: parseFloat(searchParams.get('monthlyPayment') || '0')
+                } : undefined
+              })
+            });
+
+            if (!saveResponse.success) {
+              throw new Error(saveResponse.error || '保存失败');
+            }
+          } catch (error) {
+            console.error('Failed to save evaluation:', error);
+            toast({
+              variant: "destructive",
+              title: "保存失败",
+              description: "评估结果保存失败，但不影响当前显示"
+            });
+          }
+
           setEvaluation(parsedEvaluation);
         } catch (error) {
           console.error('AI response parsing failed:', error, response);

@@ -75,4 +75,32 @@ router.get('/:id', auth, async (req: AuthenticatedRequest, res) => {
   }
 })
 
+// 添加保存评估记录的路由
+router.post('/save', auth, async (req: AuthenticatedRequest, res) => {
+  try {
+    const evaluation = await EvaluationModel.create({
+      userId: req.user?.id as string,
+      expenseType: req.body.expenseType,
+      amount: req.body.amount,
+      result: req.body.result,
+      description: req.body.description,
+      paymentMethod: req.body.paymentMethod,
+      installmentInfo: req.body.installmentInfo
+    });
+    
+    const response: ApiResponse<typeof evaluation> = {
+      success: true,
+      data: evaluation
+    };
+    res.json(response);
+  } catch (error) {
+    const response: ApiResponse<null> = {
+      success: false,
+      error: '保存评估记录失败',
+      message: error instanceof Error ? error.message : '未知错误'
+    };
+    res.status(500).json(response);
+  }
+});
+
 export default router 
