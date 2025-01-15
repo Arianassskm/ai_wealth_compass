@@ -10,6 +10,7 @@ import { EnhancedBackground } from '@/components/enhanced-background'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/hooks/useAuth'
 import { config } from '@/config'
+import { LIFE_STAGE_MAP } from '@/lib/dictionaries'
 
 export default function PersonalInfoPage() {
   const router = useRouter()
@@ -42,7 +43,7 @@ export default function PersonalInfoPage() {
           setUserInfo({
             name: data.name || "未设置",
             avatar: data.avatar || "/placeholder.svg",
-            lifeStage: data.life_stage || "未知",
+            lifeStage: LIFE_STAGE_MAP[data.life_stage] || "未知",
             riskPreference: getRiskLevel(data.risk_tolerance) || "稳健型",
             age: getAgeFromGroup(data.age_group) || "--",
             occupation: data.employment_status || "未知",
@@ -75,13 +76,15 @@ export default function PersonalInfoPage() {
     return tolerance ? riskMap[tolerance] : '稳健型'
   }
 
-  const getAgeFromGroup = (ageGroup?: string) => {
-    const ageMap: { [key: string]: number } = {
-      '18-25': 22,
-      '26-35': 30,
-      '36-45': 40,
-      '46-55': 50,
-      '56+': 60
+  const getAgeFromGroup = (ageGroup?: string): string => {
+    const currentYear = new Date().getFullYear()
+    const ageMap: { [key: string]: string } = {
+      '60后': '55-65',
+      '70后': '45-55',
+      '80后': '35-45',
+      '90后': '25-35',
+      '00后': '15-25',
+      '10后': '5-15'
     }
     return ageGroup ? ageMap[ageGroup] : '--'
   }
