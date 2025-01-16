@@ -48,47 +48,78 @@ export default function BudgetSettingsPage() {
   const { token } = useAuthContext()
   const [totalBudget, setTotalBudget] = useState(5000)
   const [categories, setCategories] = useState([
-    { name: '生活必需品', percentage: 50, color: 'rgb(255, 99, 132)' },
-    { name: '娱乐', percentage: 20, color: 'rgb(54, 162, 235)' },
-    { name: '储蓄', percentage: 20, color: 'rgb(255, 206, 86)' },
-    { name: '其他', percentage: 10, color: 'rgb(75, 192, 192)' },
+    { name: '生活必需品', percentage: 50, color: 'rgb(255, 99, 132)', amount: 0 },
+    { name: '娱乐', percentage: 20, color: 'rgb(54, 162, 235)', amount: 0 },
+    { name: '储蓄', percentage: 20, color: 'rgb(255, 206, 86)', amount: 0 },
+    { name: '其他', percentage: 10, color: 'rgb(75, 192, 192)', amount: 0 },
   ])
 
   useEffect(() => {
     const fetchAIEstimation = async () => {
       try {
-        const response = await fetchApi(config.apiEndpoints.user.profile,{
+        const response = await fetchApi<{
+          ai_evaluation_details: {
+            budget_settings?: {
+              total_budget: number;
+              categories: Array<{
+                name: string;
+                percentage: number;
+                color: string;
+              }>;
+            };
+          };
+        }>(config.apiEndpoints.user.profile, {
           token
-        })
-        const data = await response.data
+        });
+
+        // 添加调试日志
+        console.log('API Response:', response?.data?.ai_evaluation_details?.budget_settings);
         
-        if (data.ai_evaluation_details?.budget_settings) {
-          setTotalBudget(data.ai_evaluation_details.budget_settings.total_budget)
-          setCategories(data.ai_evaluation_details.budget_settings.categories)
+        const budgetSettings = response?.data?.ai_evaluation_details?.budget_settings;
+        if (budgetSettings) {
+          setTotalBudget(budgetSettings.total_budget);
+          if (Array.isArray(budgetSettings.categories) && budgetSettings.categories.length > 0) {
+            setCategories(budgetSettings.categories);
+          }
         }
       } catch (error) {
-        console.error('Error fetching AI estimation:', error)
+        console.error('Error fetching AI estimation:', error);
+        toast({
+          title: "获取预算数据失败",
+          description: "无法加载您的预算设置，请稍后重试",
+          variant: "destructive"
+        });
       }
+    };
+
+    fetchAIEstimation();
+  }, [token]);
+
+  const handlePercentageChange = (index: number, newPercentage: number) => {
+    const updatedCategories = [...categories];
+    updatedCategories[index] = {
+      ...updatedCategories[index],
+      percentage: newPercentage,
+      // 计算并更新 amount
+      amount: Math.round(totalBudget * newPercentage / 100)
+    };
+
+    // 重新计算其他类别的百分比和金额
+    const remainingPercentage = 100 - newPercentage;
+    const otherCategories = updatedCategories.filter((_, i) => i !== index);
+    const totalOtherPercentage = otherCategories.reduce((sum, cat) => sum + cat.percentage, 0);
+
+    if (totalOtherPercentage > 0) {
+      otherCategories.forEach((cat) => {
+        const adjustedPercentage = (cat.percentage / totalOtherPercentage) * remainingPercentage;
+        cat.percentage = adjustedPercentage;
+        // 同时更新其他类别的 amount
+        cat.amount = Math.round(totalBudget * adjustedPercentage / 100);
+      });
     }
 
-    fetchAIEstimation()
-  }, [])
-
-  const handlePercentageChange = (index: number, newValue: number) => {
-    const newCategories = [...categories]
-    const oldValue = newCategories[index].percentage
-    const diff = newValue - oldValue
-
-    // Adjust other categories
-    for (let i = 0; i < newCategories.length; i++) {
-      if (i !== index) {
-        newCategories[i].percentage -= diff / (newCategories.length - 1)
-      }
-    }
-
-    newCategories[index].percentage = newValue
-    setCategories(newCategories)
-  }
+    setCategories(updatedCategories);
+  };
 
   const addCategory = () => {
     const newCategory = { 
@@ -113,27 +144,38 @@ export default function BudgetSettingsPage() {
 
   const saveBudget = async () => {
     try {
-      const response = await fetchApi(config.apiEndpoints.user.calibrateBudget, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          total_budget: totalBudget,
-          categories: categories
-        }),
-      });
-      
-      if (!response.ok) throw new Error('Failed to save budget');
-      
+      interface BudgetResponse {
+        message: string;
+        success: boolean;
+      }
+      console.log(categories)
+      const response = await fetchApi<BudgetResponse>(
+        config.apiEndpoints.user.calibrateBudget,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          token,
+          body: JSON.stringify({
+            total_budget: totalBudget,
+            categories: categories
+          }),
+        }
+      );
+
+      if (!response.success) {
+        throw new Error('预算设置失败');
+      }
+
       toast({
         title: "预算已保存",
         description: "您的预算设置已成功保存，系统将基于这些数据为您提供更准确的建议。",
       });
-      
-      // router.push('/');
+
+      router.push('/');
     } catch (error) {
+      console.error('Save budget error:', error);
       toast({
         title: "保存失败",
         description: "保存预算时出现错误，请稍后重试。",

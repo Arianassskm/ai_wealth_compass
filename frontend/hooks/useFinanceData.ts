@@ -8,6 +8,8 @@ export interface FinanceData {
     name: string
     avatar: string
   }
+  basic_salary: number
+  necessary_expenses: number
   disposable_income: {
     current: number
     last: number

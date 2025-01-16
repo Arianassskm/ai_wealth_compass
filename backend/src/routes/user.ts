@@ -145,10 +145,8 @@ router.get('/finance-dashboard', auth, async (req: AuthenticatedRequest, res) =>
     const userId = req.user?.id as string
     const user = await UserModel.findById(userId)
     const { currentAmount, growthRate, lastMonthAmount } = await MonthlyFinanceModel.calculateGrowthRate(userId)
-    
     // 获取当月完整财务数据
     const currentMonthData = await MonthlyFinanceModel.getCurrentMonthData(userId)
-    
     const response: ApiResponse<MonthlyFinanceData> = {
       success: true,
       data: {
@@ -156,6 +154,8 @@ router.get('/finance-dashboard', auth, async (req: AuthenticatedRequest, res) =>
           name: user?.name || '',
           avatar: user?.avatar || ''
         },
+        basic_salary: user?.basic_salary || 0,
+        necessary_expenses: user?.necessary_expenses || 0,
         disposable_income: {
           current: currentAmount,
           last: lastMonthAmount,

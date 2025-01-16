@@ -19,6 +19,7 @@ interface User {
   estimated_monthly_income: number
   
   // 财务状况
+  basic_salary: number
   monthly_expenses: number
   savings: number
   debt_amount: number
@@ -44,6 +45,7 @@ interface User {
   long_term_goal: string
   monthly_investment_amount: number
   expected_return_rate: number
+  necessary_expenses: number
   
   // AI 评估结果
   risk_score: number
@@ -85,6 +87,7 @@ interface User {
         name: string;
         percentage: number;
         color: string;
+        amount: number;
       }>;
       monthly_budget: {
         income: number;
@@ -171,16 +174,18 @@ class UserModel {
       password: hashedPassword,
       name: userData.name || '',
       avatar: userData.avatar || '/placeholder.svg',
-      
+      necessary_expenses: userData.necessary_expenses || 0,
       // 基本信息
       life_stage: userData.life_stage || '未知',
+      basic_salary: userData.basic_salary || 0,
       age_group: userData.age_group || '',
       gender: userData.gender || '',
       employment_status: userData.employment_status || '未知',
       estimated_monthly_income: userData.estimated_monthly_income || 0,
-      
+      // necessary_expenses: userData.necessary_expenses || 0,
       // 财务状况
       monthly_expenses: userData.monthly_expenses || 0,
+
       savings: userData.savings || 0,
       debt_amount: userData.debt_amount || 0,
       debt_type: userData.debt_type || [],

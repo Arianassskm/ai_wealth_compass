@@ -27,6 +27,28 @@ import { DisposableIncomeAnalysis } from "@/components/disposable-income-analysi
 import { useFinanceData } from '@/hooks/useFinanceData'
 import { toast } from 'sonner'
 import { useAuthContext } from '@/providers/auth-provider'
+import { useProfile } from '@/hooks/useProfile'
+
+type Threshold = {
+  color: string;
+  amount: number;
+  label: string;
+}
+
+type Subcategory = {
+  name: string;
+  amount: number;
+}
+
+type BudgetCategory = {
+  title: string;
+  percentage: number;
+  amount: number;
+  total: number;
+  color: string;
+  thresholds: Threshold[];
+  subcategories: Subcategory[];
+}
 
 const monthlyData = [
   { date: "1月", value: 2400 },
@@ -36,61 +58,6 @@ const monthlyData = [
   { date: "5月", value: 4800 },
   { date: "6月", value: 3800 },
   { date: "7月", value: 4300 },
-]
-
-const budgetCategories = [
-  {
-    title: "固定生活成本",
-    percentage: 75,
-    amount: 3750,
-    total: 5000,
-    color: "text-blue-600",
-    thresholds: [
-      { color: "text-red-500", amount: 4500, label: "红线" },
-      { color: "text-yellow-500", amount: 4000, label: "黄线" },
-      { color: "text-green-500", amount: 3500, label: "绿线" },
-    ],
-    subcategories: [
-      { name: "房租", amount: 2000 },
-      { name: "水电", amount: 500 },
-      { name: "通勤", amount: 500 },
-      { name: "餐食", amount: 750 },
-    ],
-  },
-  {
-    title: "社交娱乐",
-    percentage: 60,
-    amount: 1200,
-    total: 2000,
-    color: "text-green-600",
-    thresholds: [
-      { color: "text-red-500", amount: 1800, label: "红线" },
-      { color: "text-yellow-500", amount: 1500, label: "黄线" },
-      { color: "text-green-500", amount: 1200, label: "绿线" },
-    ],
-    subcategories: [
-      { name: "聚会", amount: 500 },
-      { name: "电影", amount: 200 },
-      { name: "旅行", amount: 500 },
-    ],
-  },
-  {
-    title: "预期储蓄",
-    percentage: 80,
-    amount: 4000,
-    total: 5000,
-    color: "text-purple-600",
-    thresholds: [
-      { color: "text-red-500", amount: 3000, label: "红线" },
-      { color: "text-yellow-500", amount: 3500, label: "黄线" },
-      { color: "text-green-500", amount: 4000, label: "绿线" },
-    ],
-    subcategories: [
-      { name: "应急基金", amount: 2000 },
-      { name: "投资", amount: 1500 },
-      { name: "退休金", amount: 500 },
-    ],
-  },
 ]
 
 export default function HomePage() {
@@ -104,8 +71,9 @@ export default function HomePage() {
   const [expandedCategory, setExpandedCategory] = useState<number | null>(null)
   const { token } = useAuthContext()
   const { financeData, loading, error } = useFinanceData()
+  const { profileData, loading: profileLoading } = useProfile()
   
-  const disposableIncome = financeData?.disposable_income.current || 0
+  const disposableIncome = ((financeData?.basic_salary || 0) - (financeData?.necessary_expenses || 0)) || 0
   const growthRate = financeData?.disposable_income.growth || 0
   const lastMonthAmount = financeData?.disposable_income.last || 0
 
@@ -140,6 +108,46 @@ export default function HomePage() {
 
   const handleCategoryExpand = (index: number, isExpanded: boolean) => {
     setExpandedCategory(isExpanded ? index : null)
+  }
+  
+  const getBudgetCategories = (): BudgetCategory[] => {
+    if (!profileData?.ai_evaluation_details?.budget_settings?.categories) {
+      return [];
+    }
+    return profileData.ai_evaluation_details.budget_settings.categories.map(category => ({
+      title: category.name,
+      percentage: Math.round((Number(category.spent_amount || 0) / Number(category.amount || 1)) * 100),
+      amount: Number(category.spent_amount || 0),
+      total: Number(category.amount || 0),
+      color: `text-${category.color || 'blue'}-600`,
+      thresholds: [
+        {
+          color: 'text-red-500',
+          amount: Number(category.amount || 0) * 0.9,
+          label: '红线'
+        },
+        {
+          color: 'text-yellow-500',
+          amount: Number(category.amount || 0) * 0.8,
+          label: '黄线'
+        },
+        {
+          color: 'text-green-500',
+          amount: Number(category.amount || 0) * 0.7,
+          label: '绿线'
+        }
+      ],
+      subcategories: (category.sub_categories || []).map(sub => ({
+        name: sub.name,
+        amount: Number(sub.spent_amount || 0)
+      }))
+    }));
+  };
+
+  const budgetCategories = getBudgetCategories();
+
+  if (profileLoading) {
+    return <div>Loading...</div>;
   }
 
   return (
@@ -233,22 +241,25 @@ export default function HomePage() {
         >
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-gray-900">预算类别</h2>
-            <div className="grid grid-cols-3 gap-2">
-              {budgetCategories.map((category, index) => (
-                <div key={index} className="relative">
-                  <ProgressCircle
-                    title={category.title}
-                    percentage={category.percentage}
-                    amount={category.amount}
-                    total={category.total}
-                    color={category.color}
-                    thresholds={category.thresholds}
-                    subcategories={category.subcategories}
-                    onExpand={(isExpanded) => handleCategoryExpand(index, isExpanded)}
-                  />
-                </div>
-              ))}
-            </div>
+            <ScrollArea className="w-full">
+              <div className="flex space-x-4 pb-4 min-w-full overflow-x-auto">
+                {budgetCategories.map((category, index) => (
+                  <div key={index} className="relative flex-none w-[calc(33.333%-0.67rem)]">
+                    <ProgressCircle
+                      disposableIncome={disposableIncome}
+                      title={category.title}
+                      percentage={category.percentage}
+                      amount={category.amount}
+                      total={category.total}
+                      color={category.color}
+                      thresholds={category.thresholds}
+                      subcategories={category.subcategories}
+                      onExpand={(isExpanded) => handleCategoryExpand(index, isExpanded)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
           </div>
         </motion.div>
 

@@ -31,6 +31,12 @@ export const config = {
       save: '/v1/evaluations/save',
       history: '/v1/evaluations/history'
     },
+    financialGoals: {
+      list: '/v1/financial-goals',
+      create: '/v1/financial-goals',
+      update: (id: string) => `/v1/financial-goals/${id}`,
+      delete: (id: string) => `/v1/financial-goals/${id}`
+    },
     ai: {
       chat: '/v3/chat/completions'
     },

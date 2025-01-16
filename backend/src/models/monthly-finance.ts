@@ -223,7 +223,6 @@ export class MonthlyFinanceModel {
     const currentMonth = today.getMonth() + 1
 
     let currentData = await this.findByUserIdAndMonth(userId, currentYear, currentMonth)
-    
     if (!currentData) {
       // 如果没有当月数据，基于上月数据生成
       const lastMonthData = await this.findLastMonth(userId)

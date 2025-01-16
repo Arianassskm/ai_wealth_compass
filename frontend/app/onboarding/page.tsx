@@ -50,10 +50,11 @@ export default function OnboardingPage() {
   const [showAdditionalAges, setShowAdditionalAges] = useState(false)
 
   const handleNext = () => {
+
     if (selectedAge && selectedGender) {
       updateData({
         age_group: selectedAge,
-        gender: selectedGender
+        gender: selectedGender,
       })
       router.push('/onboarding/step2')
     }

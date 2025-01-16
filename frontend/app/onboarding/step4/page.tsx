@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label"
 import { ArrowLeft, Target, Clock, TrendingUp, Shield } from 'lucide-react'
 import { RadioCard } from "@/components/radio-card"
 import { useOnboarding } from '@/contexts/onboarding-context'
-
 export default function InvestmentPreferencePage() {
   const router = useRouter()
   const { data, updateData, submitData } = useOnboarding()

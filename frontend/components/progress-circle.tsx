@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
@@ -25,8 +25,17 @@ interface ProgressCircleProps {
   color: string
   thresholds: BudgetThreshold[]
   subcategories: Subcategory[]
+  disposableIncome: number
   onExpand: (isExpanded: boolean) => void
+  showPercentageBreakdown?: boolean
 }
+
+const BUDGET_PERCENTAGES = {
+  '生活必需品': 40,
+  '娱乐社交': 20,
+  '储蓄投资': 30,
+  '其他支出': 10
+} as const;
 
 export function ProgressCircle({ 
   title, 
@@ -36,14 +45,21 @@ export function ProgressCircle({
   color,
   thresholds,
   subcategories,
-  onExpand
+  disposableIncome,
+  onExpand,
+  showPercentageBreakdown = true
 }: ProgressCircleProps) {
+  console.log('ProgressCircle props:', {
+    title,
+    subcategories,
+    disposableIncome
+  });
+
   const [isExpanded, setIsExpanded] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const radius = 24
   const circumference = 2 * Math.PI * radius
   const offset = circumference - (percentage / 100) * circumference
-
   // Handle clicks outside to close the expanded panel
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -68,6 +84,55 @@ export function ProgressCircle({
     setIsExpanded(newExpandedState)
     onExpand(newExpandedState)
   }
+
+  const formatSubcategoryText = (subcategory: Subcategory) => {
+    const percentageMap: { [key: string]: number } = {
+      '生活必需品': 40,
+      '娱乐社交': 20,
+      '储蓄投资': 30,
+      '其他支出': 10
+    };
+    
+    const percentage = percentageMap[subcategory.name] || 0;
+    return `${subcategory.name}：${disposableIncome}×(${percentage}%)`;
+  };
+
+  const totalAmount = useMemo(() => {
+    return Object.values(BUDGET_PERCENTAGES).reduce((total, percentage) => {
+      return total + (disposableIncome * percentage / 100);
+    }, 0);
+  }, [disposableIncome]);
+
+  // 根据 title 创建对应的 subcategory
+  const currentCategory = useMemo(() => {
+    const titleToNameMap: { [key: string]: string } = {
+      '生活必需品': '生活必需品',
+      '娱乐': '娱乐社交',
+      '储蓄': '储蓄投资',
+      '其他': '其他支出'
+    };
+    
+    const categoryName = titleToNameMap[title] || title;
+    const percentage = BUDGET_PERCENTAGES[categoryName as keyof typeof BUDGET_PERCENTAGES] || 0;
+    const calculatedAmount = Math.floor(disposableIncome * percentage / 100);
+    
+    return {
+      name: categoryName,
+      amount: total,
+      calculatedAmount,
+      percentage
+    };
+  }, [title, disposableIncome, total]);
+
+  // 渲染当前类别的预算分配
+  const renderCategory = (
+    <div className="text-center">
+     
+      <div className="text-xs text-blue-600">
+        ¥{currentCategory.calculatedAmount.toLocaleString('ja-JP')} / ¥{Math.floor(total).toLocaleString('ja-JP')}
+      </div>
+    </div>
+  );
 
   return (
     <div className="relative" ref={containerRef}>
@@ -109,9 +174,12 @@ export function ProgressCircle({
               </div>
             </div>
             <h3 className="font-medium text-xs text-center mb-1 text-blue-900">{title}</h3>
-            <p className="text-xs text-blue-600 text-center">
-              ¥{amount.toLocaleString()} / ¥{total.toLocaleString()}
-            </p>
+            
+            {/* 显示当前类别的预算分配 */}
+            <div className="w-full space-y-1">
+              {renderCategory}
+            </div>
+
             {isExpanded ? (
               <ChevronUp className="w-4 h-4 mt-1 text-blue-500" />
             ) : (

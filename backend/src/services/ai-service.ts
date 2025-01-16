@@ -60,13 +60,13 @@ export class AIService {
       const data = JSON.parse(responseText) as ChatCompletionResponse
 
       if (!data.success || !data.data?.choices?.[0]?.message?.content) {
-        throw new Error(data.error || 'Failed to get AI response')
+        throw new Error(data.error || '获取AI响应失败')
       }
 
       return data.data.choices[0].message.content
 
     } catch (error) {
-      console.error('AI Service Error:', error instanceof Error ? error.message : JSON.stringify(error))
+      console.error('AI服务错误:', error instanceof Error ? error.message : JSON.stringify(error))
       throw error instanceof Error ? error : new Error(JSON.stringify(error))
     }
   }

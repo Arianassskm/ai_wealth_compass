@@ -9,6 +9,7 @@ import onboardingRoutes from './routes/onboarding'
 import accountRouter from './routes/account'
 import evaluationRouter from './routes/evaluation'
 import aiProxyRouter from './routes/ai-proxy'
+import financialGoalsRouter from './routes/financial-goals'
 
 const app = express()
 
@@ -35,6 +36,7 @@ app.use('/api/v1/onboarding', onboardingRoutes)
 app.use('/api/v1/accounts', accountRouter)
 app.use('/api/v1/evaluations', evaluationRouter)
 app.use('/api/v3', aiProxyRouter)
+app.use('/api/v1/financial-goals', financialGoalsRouter)
 
 // 初始化数据库
 initDB().catch(console.error)
@@ -51,23 +53,23 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
 
 // 添加未捕获异常处理
 process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error)
+  console.error('未捕获异常:', error)
 })
 
 process.on('unhandledRejection', (error) => {
-  console.error('Unhandled Rejection:', error)
+  console.error('未处理拒绝:', error)
 })
 
 try {
   app.listen(config.port, () => {
     console.log('=================================')
-    console.log(`Environment: ${process.env.NODE_ENV}`)
-    console.log(`Server is running on port ${config.port}`)
-    console.log(`API endpoints available at http://localhost:${config.port}/api`)
+    console.log(`环境: ${process.env.NODE_ENV}`)
+    console.log(`服务端口: ${config.port}`)
+    console.log(`服务地址: http://localhost:${config.port}/api`)
     console.log('=================================')
   })
 } catch (error) {
-  console.error('Server failed to start:', error)
+  console.error('服务启动失败:', error)
 }
 
 export default app 
