@@ -188,7 +188,7 @@ export default function BudgetSettingsPage() {
     <AssistantLayout
       title="预算设置"
       description="设置和管理您的月度预算"
-      avatarSrc="/placeholder.svg"
+      avatarSrc="/images/placeholder.svg"
       onBack={() => router.push('/')}
       sections={[
         {

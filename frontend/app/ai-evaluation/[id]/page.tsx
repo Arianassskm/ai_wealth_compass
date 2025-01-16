@@ -15,6 +15,8 @@ import { Smartphone, Map, Utensils } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { toast } from '@/components/ui/use-toast'
+import { ProgressCircle } from '@/components/progress-circle'
+import { v4 as uuidv4 } from 'uuid'
 
 // 将 remindText 移到顶部并格式化
 const remindText = `你是一个专业的财务分析和决策支持AI系统。你将接收用户的财务支出申请，并提供全面、多维度的分析报告。
@@ -58,7 +60,9 @@ const remindText = `你是一个专业的财务分析和决策支持AI系统。�
 
 <第四板块: 财务评估>
 - 必要性评分：1-10分
+- 必要性评分说明：
 - 紧急性评分：1-10分
+- 紧急性评分说明：
 - 财务影响评估：
   * 短期影响
   * 长期影响
@@ -96,7 +100,9 @@ interface AIEvaluation {
   finalSuggestion: string
   financialAssessment: {
     necessity: number
+    necessityDesc: string
     urgency: number
+    urgencyDesc: string
     shortTermImpact: string
     longTermImpact: string
     riskLevel: string
@@ -110,10 +116,22 @@ interface AIEvaluationHistory {
   type: 'expense_evaluation'
   amount: number
   expenseType: string
+  description: string
   result: string
+  paymentMethod: '一次性支付' | '分期付款'
+  installmentInfo?: {
+    value: number
+    unit: 'month' | 'year'
+    monthlyPayment: number
+    installmentType?: string
+  }
   analysis: {
     necessity: number
+    necessityDesc: string
     urgency: number
+    urgencyDesc: string
+    shortTermImpact: string
+    longTermImpact: string
     riskLevel: string
     valueComparisons: ValueComparison[]
     boardDecisions: {
@@ -123,6 +141,7 @@ interface AIEvaluationHistory {
         emoji: string
       }
     }
+    finalSuggestion: string
   }
   createdAt: string
 }
@@ -136,6 +155,22 @@ const STATUS_MAP = {
   'pending': '等待中'
 } as const;
 
+function LoadingSkeleton() {
+  return (
+    <div className="max-w-2xl mx-auto p-4 space-y-6">
+      <Card className="p-6">
+        <Skeleton className="h-8 w-1/3 mb-4" />
+        <Skeleton className="h-6 w-full" />
+      </Card>
+      <Card className="p-6">
+        <Skeleton className="h-8 w-1/2 mb-4" />
+        <Skeleton className="h-6 w-full mb-2" />
+        <Skeleton className="h-6 w-3/4" />
+      </Card>
+    </div>
+  )
+}
+
 export default function AIEvaluationPage({ params }: { params: { id: string } }) {
   const { token } = useAuthContext()
   const searchParams = useSearchParams()
@@ -145,6 +180,7 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
   
   // 更新用户信息的类型
   const [userInfo, setUserInfo] = useState<{
+    userId?: string
     age_group?: string
     monthlyIncome?: number
     occupation?: string
@@ -171,7 +207,7 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const response = await fetchApi(`${config.apiEndpoints.user.profile}`, {
+        const response = await fetchApi(config.apiEndpoints.user.profile, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -185,8 +221,20 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
 
         const data = response.data;
         
+        // 检查用户 ID 是否存在
+        if (!data.id) {
+          console.error('用户信息中缺少 ID:', data);
+          toast({
+            variant: "destructive",
+            title: "用户信息错误",
+            description: "无法获取用户ID，请重新登录"
+          });
+          return;
+        }
+
         // 处理并转换用户信息
         setUserInfo({
+          userId: data.id,  // 确保 ID 存在
           age_group: data.age_group,
           monthlyIncome: data.disposable_income?.amount || 0,
           occupation: data.employment_status || '未知',
@@ -197,22 +245,30 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
           riskTolerance: RISK_TOLERANCE_MAP[data.risk_tolerance as keyof typeof RISK_TOLERANCE_MAP] || '未知'
         });
 
-        console.log('Processed user info:', data); // 添加日志
+        console.log('Processed user info:', {
+          userId: data.id,
+          ...data
+        });
       } catch (error) {
         console.error('Failed to fetch user info:', error);
+        toast({
+          variant: "destructive",
+          title: "获取用户信息失败",
+          description: "请检查网络连接并重试"
+        });
       }
     };
 
-    if (token) {
+    // 只在有 token 且没有用户信息时获取
+    if (token && !userInfo?.userId) {
       fetchUserInfo();
     }
-  }, [token]);
+  }, [token, userInfo?.userId]);
 
   // 修改 AI 评估请求
   useEffect(() => {
     const fetchEvaluation = async () => {
       try {
-        console.log()
         setLoading(true);
         // 如果有历史记录ID，先尝试获取历史数据
         if (!searchParams.get('labelType')) {
@@ -298,11 +354,26 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
             boardDecisions: extractBoardDecisions(aiContent),
             finalSuggestion: aiContent.match(/说明：([^]*?)(?=\n\n|\n<|$)/i)?.[1]?.trim() || '',
             financialAssessment: extractFinancialAssessment(aiContent),
-            valueComparisons: extractValueComparisons(aiContent)
+            valueComparisons: extractValueComparisons(aiContent),
+            installmentInfo: searchParams.get('paymentMethod') === 'installment' ? {
+              value: parseInt(searchParams.get('installmentValue') || '0'),
+              unit: searchParams.get('installmentUnit') as 'month' | 'year',
+              monthlyPayment: parseFloat(searchParams.get('monthlyPayment') || '0'),
+              installmentType: searchParams.get('installmentUnit') === 'year' ? '年付' : '月付'
+            } : undefined
           };
 
-          // 保存评估结果到数据库
+          // 设置评估结果
+          setEvaluation(parsedEvaluation);
+
+          // 只有在 AI 响应成功时才保存评估历史
           try {
+            // 检查必要字段
+            if (!userInfo?.userId) {
+              console.error('Missing userId:', userInfo);
+              throw new Error('用户未登录或身份信息缺失，请重新登录');
+            }
+
             const saveResponse = await fetchApi(config.apiEndpoints.evaluations.save, {
               method: 'POST',
               headers: {
@@ -310,32 +381,72 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify({
-                expenseType: searchParams.get('labelType') || '',
-                amount: parseFloat(searchParams.get('amount') || '0'),
+                id: uuidv4(),
+                type: 'expense_evaluation',
+                userId: userInfo.userId,
+                expenseType: parsedEvaluation.expenseType,
+                amount: parseFloat(parsedEvaluation.amount.replace(/,/g, '')),
                 result: parsedEvaluation.result,
-                description: searchParams.get('labelName') || '',
-                paymentMethod: searchParams.get('paymentMethod') === 'installment' ? 'installment' : 'one-time',
-                installmentInfo: searchParams.get('paymentMethod') === 'installment' ? {
-                  value: parseInt(searchParams.get('installmentValue') || '0'),
-                  unit: searchParams.get('installmentUnit') || 'month',
-                  monthlyPayment: parseFloat(searchParams.get('monthlyPayment') || '0')
-                } : undefined
+                description: parsedEvaluation.expenseDescription,
+                paymentMethod: parsedEvaluation.paymentMethod,
+                installmentInfo: parsedEvaluation.installmentInfo,
+                analysis: {
+                  necessity: parsedEvaluation.financialAssessment.necessity,
+                  necessityDesc: parsedEvaluation.financialAssessment.necessityDesc || '',
+                  urgency: parsedEvaluation.financialAssessment.urgency,
+                  urgencyDesc: parsedEvaluation.financialAssessment.urgencyDesc || '',
+                  shortTermImpact: parsedEvaluation.financialAssessment.shortTermImpact || '',
+                  longTermImpact: parsedEvaluation.financialAssessment.longTermImpact || '',
+                  riskLevel: parsedEvaluation.financialAssessment.riskLevel || '未知',
+                  valueComparisons: parsedEvaluation.valueComparisons || [],
+                  boardDecisions: parsedEvaluation.boardDecisions || {},
+                  finalSuggestion: parsedEvaluation.finalSuggestion || ''
+                },
+                createdAt: new Date().toISOString()
               })
             });
 
+            // 添加请求和响应的详细日志
+            console.log('Save evaluation request:', {
+              userId: userInfo.userId,
+              id: params.id,
+              type: 'expense_evaluation',
+              expenseType: parsedEvaluation.expenseType,
+              amount: parseFloat(parsedEvaluation.amount.replace(/,/g, '')),
+              result: parsedEvaluation.result,
+              description: parsedEvaluation.expenseDescription,
+              paymentMethod: parsedEvaluation.paymentMethod,
+              installmentInfo: parsedEvaluation.installmentInfo,
+              analysis: {
+                necessity: parsedEvaluation.financialAssessment.necessity,
+                necessityDesc: parsedEvaluation.financialAssessment.necessityDesc || '',
+                urgency: parsedEvaluation.financialAssessment.urgency,
+                urgencyDesc: parsedEvaluation.financialAssessment.urgencyDesc || '',
+                shortTermImpact: parsedEvaluation.financialAssessment.shortTermImpact || '',
+                longTermImpact: parsedEvaluation.financialAssessment.longTermImpact || '',
+                riskLevel: parsedEvaluation.financialAssessment.riskLevel || '未知',
+                valueComparisons: parsedEvaluation.valueComparisons || [],
+                boardDecisions: parsedEvaluation.boardDecisions || {},
+                finalSuggestion: parsedEvaluation.finalSuggestion || ''
+              },
+              createdAt: new Date().toISOString()
+            });
+            console.log('Save evaluation response:', saveResponse);
+
             if (!saveResponse.success) {
+              console.error('Save response error:', saveResponse);
               throw new Error(saveResponse.error || '保存失败');
             }
           } catch (error) {
             console.error('Failed to save evaluation:', error);
+            const errorMessage = error instanceof Error ? error.message : '未知错误';
             toast({
               variant: "destructive",
               title: "保存失败",
-              description: "评估结果保存失败，但不影响当前显示"
+              description: errorMessage
             });
           }
 
-          setEvaluation(parsedEvaluation);
         } catch (error) {
           console.error('AI response parsing failed:', error, response);
           toast({
@@ -343,29 +454,29 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
             title: "解析失败",
             description: "AI响应格式异常，请稍后重试"
           });
+        } finally {
+          setLoading(false);
         }
       } catch (error) {
         console.error('AI evaluation failed:', error);
-        // 使用 toast 替代 message
         toast({
           variant: "destructive",
           title: "评估失败",
           description: "获取AI评估失败，请稍后重试"
         });
-      } finally {
         setLoading(false);
       }
     };
 
-    // 修改调用条件，添加防抖
-    const timer = setTimeout(() => {
-      if (userInfo && token && !evaluation) {
-        fetchEvaluation();
-      }
-    }, 300);
+    // 使用条件检查避免不必要的请求
+    if (token && !evaluation) {
+      fetchEvaluation();
+    }
 
-    return () => clearTimeout(timer);
-  }, [searchParams, token, userInfo, evaluation]);
+    return () => {
+      // 清理函数
+    };
+  }, [token, params.id, searchParams, evaluation]);
 
   // 保持原有的辅助函数
   function extractResult(content: string): string {
@@ -427,7 +538,9 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
   function extractFinancialAssessment(content: string) {
     return {
       necessity: parseInt(content.match(/必要性评分[\"'\s]*[:：]\s*(\d+)/i)?.[1] || '0', 10),
+      necessityDesc: content.match(/必要性评分说明[\"'\s]*[:：]\s*([^\n]+)/i)?.[1]?.trim() || '',
       urgency: parseInt(content.match(/紧急性评分[\"'\s]*[:：]\s*(\d+)/i)?.[1] || '0', 10),
+      urgencyDesc: content.match(/紧急性评分说明[\"'\s]*[:：]\s*([^\n]+)/i)?.[1]?.trim() || '',
       shortTermImpact: content.match(/短期影响[\"'\s]*[:：]\s*([^\n]+)/i)?.[1]?.trim() || '',
       longTermImpact: content.match(/长期影响[\"'\s]*[:：]\s*([^\n]+)/i)?.[1]?.trim() || '',
       riskLevel: content.match(/风险等级[\"'\s]*[:：]\s*([高中低])/i)?.[1]?.trim() || ''
@@ -479,121 +592,132 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
 
   // 保持原有的 UI 结构
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <header className="sticky top-0 z-10 backdrop-blur-xl bg-white/80 border-b border-gray-200">
-        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="mr-2"
-            onClick={() => router.back()}
-          >
-            <ArrowLeft className="h-6 w-6" />
-          </Button>
-          <h1 className="text-lg font-semibold text-gray-900">AI评估详情</h1>
+    <div className="relative">
+      {loading ? (
+        <LoadingSkeleton />
+      ) : !evaluation ? (
+        <div className="min-h-screen flex items-center justify-center">
+          <p className="text-gray-500">暂无评估数据</p>
         </div>
-      </header>
-
-      <main className="max-w-3xl mx-auto px-4 py-8 space-y-6 pb-16">
-        {/* 基本信息 */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col items-center mb-4">
-              <StatusBadge status={evaluation?.result || 'pending'} className="text-2xl px-6 py-2 mb-4" />
-              <h2 className="text-xl font-bold text-gray-900 text-center mb-2">{evaluation?.expenseDescription}</h2>
-              <p className="text-3xl font-bold text-blue-600">¥{evaluation?.amount}</p>
+      ) : (
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+          <header className="sticky top-0 z-10 backdrop-blur-xl bg-white/80 border-b border-gray-200">
+            <div className="max-w-3xl mx-auto px-4 py-4 flex items-center">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="mr-2"
+                onClick={() => router.back()}
+              >
+                <ArrowLeft className="h-6 w-6" />
+              </Button>
+              <h1 className="text-lg font-semibold text-gray-900">AI评估详情</h1>
             </div>
-          </CardContent>
-        </Card>
+          </header>
 
-        {/* 费用可视化 */}
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">费用可视化</h3>
-            <div className="grid grid-cols-2 gap-3">
-              {evaluation?.valueComparisons?.map((item, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex-1">
-                    <span className="text-gray-900">{item.category}</span>
-                    <span className="text-blue-600 font-medium ml-2">{item.quantity}</span>
+          <main className="max-w-3xl mx-auto px-4 py-8 space-y-6 pb-16">
+            {/* 基本信息 */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex flex-col items-center mb-4">
+                  <StatusBadge status={evaluation?.result || 'pending'} className="text-2xl px-6 py-2 mb-4" />
+                  <h2 className="text-xl font-bold text-gray-900 text-center mb-2">{evaluation?.expenseDescription}</h2>
+                  <p className="text-3xl font-bold text-blue-600">¥{evaluation?.amount}</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 费用可视化 */}
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">费用可视化</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {evaluation?.valueComparisons?.map((item, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex-1">
+                        <span className="text-gray-900">{item.category}</span>
+                        <span className="text-blue-600 font-medium ml-2">{item.quantity}</span>
+                      </div>
+                      {item.price && (
+                        <span className="text-sm text-gray-500 ml-2">{item.price}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 私董会决议 */}
+            <Card>
+              <CardContent className="p-6 space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">私董会决议情况</h3>
+                <p className="text-sm text-gray-700 mb-4">{evaluation?.finalSuggestion}</p>
+                <h4 className="text-md font-semibold text-gray-800 mt-6 mb-4">专家模型策略评估</h4>
+                <div className="grid grid-cols-3 gap-4">
+                  {Object.entries(evaluation?.boardDecisions || {}).map(([name, decision]) => (
+                    <div key={name} className="text-center p-4 border rounded-lg">
+                      <div className="text-3xl mb-2">{decision.emoji}</div>
+                      <div className="font-medium">{name}</div>
+                      <div className="text-2xl font-bold my-2">{decision.score}/10</div>
+                      <div className="text-sm text-gray-600">{decision.comment}</div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 评估内容 */}
+            <Card>
+              <CardContent className="p-6 space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">评估内容</h3>
+                <ul className="space-y-4">
+                  <li className="bg-white rounded-lg p-4 shadow-sm">
+                    <h4 className="font-medium text-gray-800 mb-2">必要性评分</h4>
+                    <p className="text-sm text-gray-600">{evaluation.financialAssessment?.necessity}/10</p>
+                    {evaluation.financialAssessment?.necessityDesc && (
+                      <p className="text-sm text-gray-500 mt-2">{evaluation.financialAssessment.necessityDesc}</p>
+                    )}
+                  </li>
+                  <li className="bg-white rounded-lg p-4 shadow-sm">
+                    <h4 className="font-medium text-gray-800 mb-2">紧急性评分</h4>
+                    <p className="text-sm text-gray-600">{evaluation.financialAssessment?.urgency}/10</p>
+                    {evaluation.financialAssessment?.urgencyDesc && (
+                      <p className="text-sm text-gray-500 mt-2">{evaluation.financialAssessment.urgencyDesc}</p>
+                    )}
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* 长期影响 */}
+            <Card>
+              <CardContent className="p-6 space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">长期影响</h3>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-2">短期影响</h4>
+                    <p className="text-sm text-gray-700">
+                      {evaluation.financialAssessment?.shortTermImpact}
+                    </p>
                   </div>
-                  {item.price && (
-                    <span className="text-sm text-gray-500 ml-2">{item.price}</span>
-                  )}
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-2">长期影响</h4>
+                    <p className="text-sm text-gray-700">
+                      {evaluation.financialAssessment?.longTermImpact}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-2">风险等级</h4>
+                    <p className="text-sm text-gray-700">
+                      {evaluation.financialAssessment?.riskLevel}
+                    </p>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 私董会决议 */}
-        <Card>
-          <CardContent className="p-6 space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">私董会决议情况</h3>
-            <p className="text-sm text-gray-700 mb-4">{evaluation?.finalSuggestion}</p>
-            <h4 className="text-md font-semibold text-gray-800 mt-6 mb-4">专家模型策略评估</h4>
-            <div className="grid grid-cols-3 gap-4">
-              {Object.entries(evaluation?.boardDecisions || {}).map(([name, decision]) => (
-                <div key={name} className="text-center p-4 border rounded-lg">
-                  <div className="text-3xl mb-2">{decision.emoji}</div>
-                  <div className="font-medium">{name}</div>
-                  <div className="text-2xl font-bold my-2">{decision.score}/10</div>
-                  <div className="text-sm text-gray-600">{decision.comment}</div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 评估内容 */}
-        <Card>
-          <CardContent className="p-6 space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">评估内容</h3>
-            <ul className="space-y-4">
-              <li className="bg-white rounded-lg p-4 shadow-sm">
-                <h4 className="font-medium text-gray-800 mb-2">必要性评分</h4>
-                <p className="text-sm text-gray-600">{evaluation?.financialAssessment.necessity}/10</p>
-              </li>
-              <li className="bg-white rounded-lg p-4 shadow-sm">
-                <h4 className="font-medium text-gray-800 mb-2">紧急性评分</h4>
-                <p className="text-sm text-gray-600">{evaluation?.financialAssessment.urgency}/10</p>
-                </li>
-            </ul>
-          </CardContent>
-        </Card>
-
-        {/* 长期影响 */}
-        <Card>
-          <CardContent className="p-6 space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">长期影响</h3>
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-medium text-gray-800 mb-2">短期影响</h4>
-                <p className="text-sm text-gray-700">{evaluation?.financialAssessment.shortTermImpact}</p>
-              </div>
-              <div>
-                <h4 className="font-medium text-gray-800 mb-2">长期影响</h4>
-                <p className="text-sm text-gray-700">{evaluation?.financialAssessment.longTermImpact}</p>
-              </div>
-              <div>
-                <h4 className="font-medium text-gray-800 mb-2">风险等级</h4>
-                <p className="text-sm text-gray-700">{evaluation?.financialAssessment.riskLevel}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </main>
-    </div>
-  )
-}
-
-function LoadingSkeleton() {
-  return (
-    <div className="max-w-2xl mx-auto p-4 space-y-6">
-      <Card className="p-6">
-        <Skeleton className="h-8 w-1/3 mb-4" />
-        <Skeleton className="h-6 w-full" />
-      </Card>
+              </CardContent>
+            </Card>
+          </main>
+        </div>
+      )}
     </div>
   )
 }

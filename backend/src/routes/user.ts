@@ -13,6 +13,8 @@ const router = Router()
 
 router.get('/profile', auth, async (req: AuthenticatedRequest, res) => {
   try {
+    const userId = req.user?.id;
+
     const user = await UserModel.findById(req.user?.id as string)
     if (!user) {
       const response: ApiResponse<null> = {
@@ -27,6 +29,7 @@ router.get('/profile', auth, async (req: AuthenticatedRequest, res) => {
 
     // 转换数据格式以匹配前端需求
     const profileData = {
+      id: userId,
       name: user.name,
       avatar: user.avatar,
       life_stage: user.life_stage,
@@ -56,12 +59,11 @@ router.get('/profile', auth, async (req: AuthenticatedRequest, res) => {
     }
     res.json(response)
   } catch (error) {
-    const response: ApiResponse<null> = {
+    console.error('Failed to get user profile:', error);
+    res.status(500).json({
       success: false,
-      error: '服务器错误',
-      message: error instanceof Error ? error.message : '未知错误'
-    }
-    res.status(500).json(response)
+      error: '获取用户信息失败'
+    });
   }
 })
 

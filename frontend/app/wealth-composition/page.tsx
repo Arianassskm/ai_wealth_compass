@@ -211,7 +211,7 @@ export default function WealthCompositionPage() {
    <AssistantLayout
      title="财富构成"
      description="查看和管理您的财富组成"
-     avatarSrc="/placeholder.svg"
+     avatarSrc="/images/placeholder.svg"
      onBack={() => router.push('/')}
      sections={[
        {
@@ -341,10 +341,10 @@ export default function WealthCompositionPage() {
              <div className="flex justify-end">
                <Button 
                  onClick={handleSaveAll}
-                 className="bg-blue-600 hover:bg-blue-700 text-white"
+                 className="bg-primary hover:bg-primary/90 text-primary-foreground transition-colors flex items-center gap-2 px-4 py-2 rounded-md"
                >
-                 <Save className="w-4 h-4 mr-2" />
-                 保存到数据库
+                 <Save className="w-4 h-4" />
+                 保存更改
                </Button>
              </div>
            </div>

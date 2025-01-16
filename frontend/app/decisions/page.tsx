@@ -21,6 +21,7 @@ import { useAuthContext } from '@/providers/auth-provider'
 import { fetchApi } from '@/lib/api'
 import { config } from '@/config'
 import OpenAI from 'openai';
+import { ProgressCircle } from '@/components/progress-circle';
 
 type PaymentMethod = 'one-time' | 'installment' | null
 type DecisionType = 'approved' | 'caution' | 'warning' | 'pending' | string;
@@ -136,7 +137,9 @@ function AIEvaluationHistoryItem({ id, label, time, amount, decision }: {
   return (
     <div 
       className="flex items-center justify-between py-3 border-b border-gray-200 last:border-b-0 cursor-pointer hover:bg-gray-50 transition-colors"
-      onClick={() => router.push(`/ai-evaluation/${id}`)}
+      onClick={() => 
+        router.push(`/ai-evaluation/${id}`)
+      }
     >
       <div className="flex items-center space-x-3">
         <div className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center">
@@ -486,7 +489,7 @@ export default function DecisionsPage() {
         onComplete={handleLabelComplete}
       />
 
-      <LoadingAnimation isLoading={isLoading} />
+      {isLoading && <ProgressCircle fullScreen />}
 
       <InstallmentDropdown
         isOpen={isInstallmentOpen}

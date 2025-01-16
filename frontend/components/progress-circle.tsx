@@ -37,12 +37,23 @@ const BUDGET_PERCENTAGES = {
   '其他支出': 10
 } as const;
 
+// 添加颜色阈值函数
+const getCircleColor = (percentage: number): string => {
+  if (percentage >= 90) {
+    return 'text-red-500';
+  } else if (percentage >= 70) {
+    return 'text-orange-500';
+  } else {
+    return 'text-green-500';
+  }
+};
+
 export function ProgressCircle({ 
   title, 
-  percentage, 
-  amount, 
-  total, 
-  color,
+  percentage,
+  amount,
+  total,
+  color, // 我们将不再使用传入的 color
   thresholds,
   subcategories,
   disposableIncome,
@@ -59,7 +70,44 @@ export function ProgressCircle({
   const containerRef = useRef<HTMLDivElement>(null)
   const radius = 24
   const circumference = 2 * Math.PI * radius
-  const offset = circumference - (percentage / 100) * circumference
+
+  // 根据 title 创建对应的 subcategory
+  const currentCategory = useMemo(() => {
+    const titleToNameMap: { [key: string]: string } = {
+      '生活必需品': '生活必需品',
+      '娱乐': '娱乐社交',
+      '储蓄': '储蓄投资',
+      '其他': '其他支出'
+    };
+    
+    const categoryName = titleToNameMap[title] || title;
+    const budgetPercentage = BUDGET_PERCENTAGES[categoryName as keyof typeof BUDGET_PERCENTAGES] || 0;
+    const calculatedAmount = Math.floor(disposableIncome * budgetPercentage / 100);
+    
+    return {
+      name: categoryName,
+      amount: total,
+      calculatedAmount,
+      percentage: budgetPercentage
+    };
+  }, [title, disposableIncome, total]);
+
+  // 计算圆环显示的百分比和颜色
+  const circlePercentage = (currentCategory.calculatedAmount / total) * 100;
+  const displayPercentage = Math.round(circlePercentage);
+  const circleColor = getCircleColor(displayPercentage);
+  const offset = circumference - (circlePercentage / 100) * circumference;
+
+  console.log('Circle calculation:', {
+    title,
+    calculatedAmount: currentCategory.calculatedAmount,
+    total,
+    circlePercentage,
+    displayPercentage,
+    circleColor,
+    offset
+  });
+
   // Handle clicks outside to close the expanded panel
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -103,27 +151,6 @@ export function ProgressCircle({
     }, 0);
   }, [disposableIncome]);
 
-  // 根据 title 创建对应的 subcategory
-  const currentCategory = useMemo(() => {
-    const titleToNameMap: { [key: string]: string } = {
-      '生活必需品': '生活必需品',
-      '娱乐': '娱乐社交',
-      '储蓄': '储蓄投资',
-      '其他': '其他支出'
-    };
-    
-    const categoryName = titleToNameMap[title] || title;
-    const percentage = BUDGET_PERCENTAGES[categoryName as keyof typeof BUDGET_PERCENTAGES] || 0;
-    const calculatedAmount = Math.floor(disposableIncome * percentage / 100);
-    
-    return {
-      name: categoryName,
-      amount: total,
-      calculatedAmount,
-      percentage
-    };
-  }, [title, disposableIncome, total]);
-
   // 渲染当前类别的预算分配
   const renderCategory = (
     <div className="text-center">
@@ -146,7 +173,7 @@ export function ProgressCircle({
             <div className="relative w-16 h-16 mb-2">
               <svg className="w-full h-full transform -rotate-90">
                 <circle
-                  className="text-blue-100"
+                  className="text-gray-100"
                   strokeWidth="8"
                   stroke="currentColor"
                   fill="transparent"
@@ -155,7 +182,7 @@ export function ProgressCircle({
                   cy="32"
                 />
                 <motion.circle
-                  className={color}
+                  className={circleColor}
                   strokeWidth="8"
                   strokeDasharray={circumference}
                   strokeDashoffset={offset}
@@ -170,7 +197,9 @@ export function ProgressCircle({
                 />
               </svg>
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-                <span className="text-sm font-bold text-blue-900">{percentage}%</span>
+                <span className={`text-sm font-bold ${circleColor}`}>
+                  {displayPercentage}%
+                </span>
               </div>
             </div>
             <h3 className="font-medium text-xs text-center mb-1 text-blue-900">{title}</h3>

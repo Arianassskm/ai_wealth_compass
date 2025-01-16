@@ -300,7 +300,7 @@ ${recommendations.map((rec: string) => `• ${rec}`).join('\n')}
             <div className="mt-6 mb-6 text-center">
               <div className="w-20 h-20 mx-auto mb-4 bg-white rounded-full flex items-center justify-center">
                 <Image
-                  src="/placeholder.svg"
+                  src="/images/placeholder.svg"
                   alt="Assistant"
                   width={60}
                   height={60}
@@ -426,7 +426,7 @@ ${recommendations.map((rec: string) => `• ${rec}`).join('\n')}
                 <FormattedMessage
                   key={msg.id}
                   message={msg}
-                  assistantImage="/placeholder.svg?height=32&width=32"
+                  assistantImage="/images/placeholder.svg?height=32&width=32"
                 />
               ))}
             </div>
