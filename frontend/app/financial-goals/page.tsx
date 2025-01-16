@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,203 +11,90 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from "@/components/ui/use-toast"
 import { useRouter } from 'next/navigation'
 import { Card } from "@/components/ui/card"
-import { config } from '@/config'
-import { useAuthContext } from '@/providers/auth-provider'
 
 type Goal = {
   id: string
   name: string
   targetAmount: number
   currentAmount: number
-  deadline: string
+  deadline: Date
 }
 
 export default function FinancialGoalsPage() {
   const router = useRouter();
-  const { token } = useAuthContext()
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [newGoal, setNewGoal] = useState({ name: '', targetAmount: 0, deadline: '' });
+  const [goals, setGoals] = useState<Goal[]>([
+    { id: '1', name: '购买新车', targetAmount: 200000, currentAmount: 50000, deadline: new Date(2024, 11, 31) },
+    { id: '2', name: '环球旅行', targetAmount: 100000, currentAmount: 30000, deadline: new Date(2025, 5, 30) },
+    { id: '3', name: '创业资金', targetAmount: 500000, currentAmount: 100000, deadline: new Date(2026, 0, 1) },
+  ])
+  const [newGoal, setNewGoal] = useState({ name: '', targetAmount: 0, deadline: '' })
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [editName, setEditName] = useState('');
   const [editTargetAmount, setEditTargetAmount] = useState(0);
   const [editCurrentAmount, setEditCurrentAmount] = useState(0);
   const [editDeadline, setEditDeadline] = useState('');
 
-  // 获取目标列表
-  const fetchGoals = async () => {
-    try {
-      const response = await fetch(`${config.apiUrl}${config.apiEndpoints.financialGoals.list}`, {
-        credentials: 'include'
-      });
-      const data = await response.json();
-      if (data.success) {
-        setGoals(data.data);
-      } else {
-        toast({
-          title: "获取失败",
-          description: data.error,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "获取失败",
-        description: "获取财务目标列表失败",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchGoals();
-  }, []);
-
-  // 添加目标
-  const addGoal = async () => {
+  const addGoal = () => {
     if (newGoal.name && newGoal.targetAmount && newGoal.deadline) {
-      try {
-        const response = await fetch(`${config.apiUrl}${config.apiEndpoints.financialGoals.create}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          credentials: 'include',
-          body: JSON.stringify({
-            name: newGoal.name,
-            targetAmount: newGoal.targetAmount,
-            currentAmount: 0,
-            deadline: new Date(newGoal.deadline).toISOString()
-          }),
-        });
-
-        const data = await response.json();
-        if (data.success) {
-          setGoals([...goals, data.data]);
-          setNewGoal({ name: '', targetAmount: 0, deadline: '' });
-          toast({
-            title: "目标已添加",
-            description: `${newGoal.name} 已成功添加到您的财务目标列表。`,
-          });
-        } else {
-          toast({
-            title: "添加失败",
-            description: data.error,
-            variant: "destructive",
-          });
-        }
-      } catch (error) {
-        toast({
-          title: "添加失败",
-          description: "添加财务目标失败",
-          variant: "destructive",
-        });
+      const newGoalItem: Goal = {
+        id: Date.now().toString(),
+        name: newGoal.name,
+        targetAmount: newGoal.targetAmount,
+        currentAmount: 0,
+        deadline: new Date(newGoal.deadline),
       }
-    }
-  };
-
-  // 删除目标
-  const removeGoal = async (id: string) => {
-    try {
-      const response = await fetch(`${config.apiUrl}${config.apiEndpoints.financialGoals.delete(id)}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-
-      if (response.status === 204) {
-        const goalToRemove = goals.find(g => g.id === id);
-        setGoals(goals.filter(goal => goal.id !== id));
-        if (goalToRemove) {
-          toast({
-            title: "目标已删除",
-            description: `${goalToRemove.name} 已从您的财务目标列表中删除。`,
-          });
-        }
-      } else {
-        const data = await response.json();
-        toast({
-          title: "删除失败",
-          description: data.error,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
+      setGoals([...goals, newGoalItem])
+      setNewGoal({ name: '', targetAmount: 0, deadline: '' })
       toast({
-        title: "删除失败",
-        description: "删除财务目标失败",
-        variant: "destructive",
-      });
+        title: "目标已添加",
+        description: `${newGoal.name} 已成功添加到您的财务目标列表。`,
+      })
     }
-  };
+  }
 
-  // 编辑目标
+  const removeGoal = (id: string) => {
+    const goalToRemove = goals.find(g => g.id === id)
+    setGoals(goals.filter(goal => goal.id !== id))
+    if (goalToRemove) {
+      toast({
+        title: "目标已删除",
+        description: `${goalToRemove.name} 已从您的财务目标列表中删除。`,
+      })
+    }
+  }
+
   const editGoal = (goal: Goal) => {
     setEditingGoal(goal);
     setEditName(goal.name);
     setEditTargetAmount(goal.targetAmount);
     setEditCurrentAmount(goal.currentAmount);
-    setEditDeadline(goal.deadline.split('T')[0]);
+    setEditDeadline(goal.deadline.toISOString().split('T')[0]);
   };
 
-  // 更新目标
-  const updateGoal = async () => {
+  const updateGoal = () => {
     if (editingGoal) {
-      try {
-        const response = await fetch(`${config.apiUrl}${config.apiEndpoints.financialGoals.update(editingGoal.id)}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          credentials: 'include',
-          body: JSON.stringify({
-            name: editName,
-            targetAmount: editTargetAmount,
-            currentAmount: editCurrentAmount,
-            deadline: new Date(editDeadline).toISOString()
-          }),
-        });
-
-        const data = await response.json();
-        if (data.success) {
-          setGoals(goals.map(g => g.id === editingGoal.id ? data.data : g));
-          setEditingGoal(null);
-          toast({
-            title: "目标已更新",
-            description: `${editName} 的信息已成功更新。`,
-          });
-        } else {
-          toast({
-            title: "更新失败",
-            description: data.error,
-            variant: "destructive",
-          });
-        }
-      } catch (error) {
-        toast({
-          title: "更新失败",
-          description: "更新财务目标失败",
-          variant: "destructive",
-        });
-      }
+      setGoals(goals.map(g => g.id === editingGoal.id ? {
+        ...editingGoal,
+        name: editName,
+        targetAmount: editTargetAmount,
+        currentAmount: editCurrentAmount,
+        deadline: new Date(editDeadline)
+      } : g));
+      setEditingGoal(null);
+      toast({
+        title: "目标已更新",
+        description: `${editName} 的信息已成功更新。`,
+      });
     }
   };
 
-  const getProgress = (goal: Goal) => (goal.currentAmount / goal.targetAmount) * 100;
+  const getProgress = (goal: Goal) => (goal.currentAmount / goal.targetAmount) * 100
 
-  if (loading) {
-    return <div>加载中...</div>;
-  }
-
-  // 其余 JSX 部分保持不变...
   return (
     <AssistantLayout
       title="财务目标"
       description="设置和跟踪您的财务目标"
-      avatarSrc="/placeholder.svg"
+      avatarSrc="/images/placeholder.svg"
       onBack={() => router.push('/')}
       sections={[
         {
@@ -289,7 +176,7 @@ export default function FinancialGoalsPage() {
                             <span>{getProgress(goal).toFixed(1)}%</span>
                           </div>
                           <p className="text-sm text-gray-500">
-                            目标日期: {new Date(goal.deadline).toLocaleDateString()}
+                            目标日期: {goal.deadline.toLocaleDateString()}
                           </p>
                         </>
                       )}
@@ -364,6 +251,6 @@ export default function FinancialGoalsPage() {
         </Button>
       </motion.div>
     </AssistantLayout>
-  );
+  )
 }
 
