@@ -11,12 +11,16 @@ import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { StatusBadge } from '@/components/ui/status-badge'
-import { Smartphone, Map, Utensils } from 'lucide-react'
+import { Smartphone, Map, Utensils, Shield, CheckCircle2, ShoppingCart } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { toast } from '@/components/ui/use-toast'
 import { ProgressCircle } from '@/components/progress-circle'
 import { v4 as uuidv4 } from 'uuid'
+import Image from 'next/image';
+import { LoadingOverlay } from "@/components/loading-overlay"
+import { BoardCarousel } from "@/components/board-carousel"
+import { ShoppingComparison } from "@/components/shopping-comparison"
 
 // 将 remindText 移到顶部并格式化
 const remindText = `你是一个专业的财务分析和决策支持AI系统。你将接收用户的财务支出申请，并提供全面、多维度的分析报告。
@@ -587,137 +591,151 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
   }
 
   if (loading) {
-    return <LoadingSkeleton />
+    return <LoadingOverlay />
   }
 
-  // 保持原有的 UI 结构
+  // Transform board decisions into carousel format
+  const boardMembers = Object.entries(evaluation?.boardDecisions || {}).map(([name, decision]) => ({
+    name,
+    role: name === '吴军' ? 'Google中国工程师' : 
+          name === '张一鸣' ? '字节跳动创始人' : 
+          name === '刘擎' ? 'FRM金融学教授' : '专家顾问',
+    score: decision.score,
+    comment: decision.comment,
+    emoji: decision.emoji
+  }))
+
+  // Transform value comparisons into shopping items
+  const shoppingItems = evaluation?.valueComparisons?.map(item => ({
+    category: item.category,
+    quantity: item.quantity,
+    price: item.price,
+    tags: ['热门爆款', '限时特惠']
+  })) || []
+
   return (
     <div className="relative">
-      {loading ? (
-        <LoadingSkeleton />
-      ) : !evaluation ? (
-        <div className="min-h-screen flex items-center justify-center">
-          <p className="text-gray-500">暂无评估数据</p>
+      <header className="sticky top-0 z-10 backdrop-blur-xl bg-white/80 border-b border-gray-200">
+        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="mr-2"
+            onClick={() => router.back()}
+          >
+            <ArrowLeft className="h-6 w-6" />
+          </Button>
+          <h1 className="text-lg font-semibold text-gray-900">AI评估详情</h1>
         </div>
-      ) : (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-          <header className="sticky top-0 z-10 backdrop-blur-xl bg-white/80 border-b border-gray-200">
-            <div className="max-w-3xl mx-auto px-4 py-4 flex items-center">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="mr-2"
-                onClick={() => router.back()}
-              >
-                <ArrowLeft className="h-6 w-6" />
-              </Button>
-              <h1 className="text-lg font-semibold text-gray-900">AI评估详情</h1>
+      </header>
+
+      <main className="max-w-3xl mx-auto px-4 py-8 space-y-6 pb-16">
+        {/* AI评估策略来源 */}
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-2">
+              <div className="p-2 bg-blue-50 rounded-lg">
+                <Shield className="w-5 h-5 text-blue-500" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900">AI评估策略来源</h3>
+                <div className="flex items-center space-x-2 mt-1">
+                  <span className="text-gray-600">来自</span>
+                  <span className="text-blue-600 font-medium">人工智能官方</span>
+                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                </div>
+              </div>
             </div>
-          </header>
+          </CardContent>
+        </Card>
 
-          <main className="max-w-3xl mx-auto px-4 py-8 space-y-6 pb-16">
-            {/* 基本信息 */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex flex-col items-center mb-4">
-                  <StatusBadge status={evaluation?.result || 'pending'} className="text-2xl px-6 py-2 mb-4" />
-                  <h2 className="text-xl font-bold text-gray-900 text-center mb-2">{evaluation?.expenseDescription}</h2>
-                  <p className="text-3xl font-bold text-blue-600">¥{evaluation?.amount}</p>
-                </div>
-              </CardContent>
-            </Card>
+        {/* 私董会决议 */}
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">私董会决议</h3>
+              <Button variant="ghost" size="sm">
+                管理私董会成员
+              </Button>
+            </div>
+            <BoardCarousel members={boardMembers} />
+          </CardContent>
+        </Card>
 
-            {/* 费用可视化 */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">费用可视化</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  {evaluation?.valueComparisons?.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex-1">
-                        <span className="text-gray-900">{item.category}</span>
-                        <span className="text-blue-600 font-medium ml-2">{item.quantity}</span>
-                      </div>
-                      {item.price && (
-                        <span className="text-sm text-gray-500 ml-2">{item.price}</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+        {/* 基本信息 */}
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex flex-col items-center">
+              <StatusBadge status={evaluation?.result || 'pending'} className="text-2xl px-6 py-2 mb-4" />
+              <h2 className="text-xl font-bold text-gray-900 text-center mb-2">{evaluation?.expenseDescription}</h2>
+              <p className="text-3xl font-bold text-blue-600">¥{evaluation?.amount}</p>
+            </div>
+          </CardContent>
+        </Card>
 
-            {/* 私董会决议 */}
-            <Card>
-              <CardContent className="p-6 space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">私董会决议情况</h3>
-                <p className="text-sm text-gray-700 mb-4">{evaluation?.finalSuggestion}</p>
-                <h4 className="text-md font-semibold text-gray-800 mt-6 mb-4">专家模型策略评估</h4>
-                <div className="grid grid-cols-3 gap-4">
-                  {Object.entries(evaluation?.boardDecisions || {}).map(([name, decision]) => (
-                    <div key={name} className="text-center p-4 border rounded-lg">
-                      <div className="text-3xl mb-2">{decision.emoji}</div>
-                      <div className="font-medium">{name}</div>
-                      <div className="text-2xl font-bold my-2">{decision.score}/10</div>
-                      <div className="text-sm text-gray-600">{decision.comment}</div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+        {/* 费用可视化 */}
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-2">
+                <ShoppingCart className="w-5 h-5 text-blue-500" />
+                <h3 className="text-lg font-semibold text-gray-900">该金额可以买到什么</h3>
+              </div>
+            </div>
+            <ShoppingComparison items={shoppingItems} />
+          </CardContent>
+        </Card>
 
-            {/* 评估内容 */}
-            <Card>
-              <CardContent className="p-6 space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">评估内容</h3>
-                <ul className="space-y-4">
-                  <li className="bg-white rounded-lg p-4 shadow-sm">
-                    <h4 className="font-medium text-gray-800 mb-2">必要性评分</h4>
-                    <p className="text-sm text-gray-600">{evaluation.financialAssessment?.necessity}/10</p>
-                    {evaluation.financialAssessment?.necessityDesc && (
-                      <p className="text-sm text-gray-500 mt-2">{evaluation.financialAssessment.necessityDesc}</p>
-                    )}
-                  </li>
-                  <li className="bg-white rounded-lg p-4 shadow-sm">
-                    <h4 className="font-medium text-gray-800 mb-2">紧急性评分</h4>
-                    <p className="text-sm text-gray-600">{evaluation.financialAssessment?.urgency}/10</p>
-                    {evaluation.financialAssessment?.urgencyDesc && (
-                      <p className="text-sm text-gray-500 mt-2">{evaluation.financialAssessment.urgencyDesc}</p>
-                    )}
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
+        {/* 评估内容 */}
+        <Card>
+          <CardContent className="p-6 space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">评估内容</h3>
+            <ul className="space-y-4">
+              <li className="bg-white rounded-lg p-4 shadow-sm">
+                <h4 className="font-medium text-gray-800 mb-2">必要性评分</h4>
+                <p className="text-sm text-gray-600">{evaluation.financialAssessment?.necessity}/10</p>
+                {evaluation.financialAssessment?.necessityDesc && (
+                  <p className="text-sm text-gray-500 mt-2">{evaluation.financialAssessment.necessityDesc}</p>
+                )}
+              </li>
+              <li className="bg-white rounded-lg p-4 shadow-sm">
+                <h4 className="font-medium text-gray-800 mb-2">紧急性评分</h4>
+                <p className="text-sm text-gray-600">{evaluation.financialAssessment?.urgency}/10</p>
+                {evaluation.financialAssessment?.urgencyDesc && (
+                  <p className="text-sm text-gray-500 mt-2">{evaluation.financialAssessment.urgencyDesc}</p>
+                )}
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
 
-            {/* 长期影响 */}
-            <Card>
-              <CardContent className="p-6 space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">长期影响</h3>
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-medium text-gray-800 mb-2">短期影响</h4>
-                    <p className="text-sm text-gray-700">
-                      {evaluation.financialAssessment?.shortTermImpact}
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-800 mb-2">长期影响</h4>
-                    <p className="text-sm text-gray-700">
-                      {evaluation.financialAssessment?.longTermImpact}
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-800 mb-2">风险等级</h4>
-                    <p className="text-sm text-gray-700">
-                      {evaluation.financialAssessment?.riskLevel}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </main>
-        </div>
-      )}
+        {/* 长期影响 */}
+        <Card>
+          <CardContent className="p-6 space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">长期影响</h3>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium text-gray-800 mb-2">短期影响</h4>
+                <p className="text-sm text-gray-700">
+                  {evaluation.financialAssessment?.shortTermImpact}
+                </p>
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-800 mb-2">长期影响</h4>
+                <p className="text-sm text-gray-700">
+                  {evaluation.financialAssessment?.longTermImpact}
+                </p>
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-800 mb-2">风险等级</h4>
+                <p className="text-sm text-gray-700">
+                  {evaluation.financialAssessment?.riskLevel}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </main>
     </div>
   )
 }

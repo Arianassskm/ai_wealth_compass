@@ -64,41 +64,40 @@
 
 ## 技术栈
 
+# Project Name
+
+## 简介
+一个基于 TypeScript + React + Next.js 的现代化 Web 应用。
+
+## 🚀 特性
+- 🔒 类型安全的全栈开发体验
+- 🎨 现代化 UI 设计
+- 📱 响应式布局
+- 🔄 实时数据更新
+- 🌐 国际化支持
+- 🔍 SEO 优化
+
+## 🛠 技术栈
+
 ### 前端
-- Next.js 14
-- TypeScript
-- TailwindCSS
-- Shadcn UI
-- Zustand
-- Framer Motion
-- Recharts
-- Radix UI
+- **框架**: React 18, Next.js 14
+- **状态管理**: Redux Toolkit, React Query
+- **样式**: Tailwind CSS, Shadcn/ui
+- **类型系统**: TypeScript
 
 ### 后端
-- FastAPI (Python Web框架)
-- PostgreSQL (关系型数据库)
-- SQLAlchemy (ORM)
-- Pydantic (数据验证)
-- DeepSeek API (AI模型集成)
-- Redis (缓存和消息队列)
-- Celery (异步任务处理)
-- JWT (认证授权)
+- **运行时**: Node.js
+- **框架**: Express.js/Nest.js
+- **数据库**: lowdb,
+- **ORM**: Prisma
 
-### AI 服务
-- DeepSeek API
-- 异步 HTTP 客户端 (httpx)
-- 自定义提示词模板
-- JSON 响应处理
-- WebSocket 实时通信
-- 事件驱动架构
+### 开发工具
+- **代码质量**: ESLint, Prettier
+- **测试**: Jest, React Testing Library
+- **CI/CD**: GitHub Actions
+- **部署**: Docker, Vercel
 
-### DevOps
-- Docker
-- Nginx
-- Redis
-- PostgreSQL
-- Prometheus
-- Grafana
+## 📦 安装
 
 ## 项目结构
 ```
