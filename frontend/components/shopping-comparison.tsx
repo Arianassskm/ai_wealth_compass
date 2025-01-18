@@ -94,7 +94,7 @@ export function ShoppingComparison({ items }: ShoppingComparisonProps) {
           </div>
           <Button className="w-full" size="lg">
             <ShoppingCart className="mr-2 h-4 w-4" />
-            去付款购买套餐
+            去抖音商城购买
           </Button>
         </div>
       )}

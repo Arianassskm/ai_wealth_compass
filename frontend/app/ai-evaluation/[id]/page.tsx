@@ -249,12 +249,12 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
           riskTolerance: RISK_TOLERANCE_MAP[data.risk_tolerance as keyof typeof RISK_TOLERANCE_MAP] || '未知'
         });
 
-        console.log('Processed user info:', {
+        console.log('处理用户数据中:', {
           userId: data.id,
           ...data
         });
       } catch (error) {
-        console.error('Failed to fetch user info:', error);
+        console.error('获取用户信息失败:', error);
         toast({
           variant: "destructive",
           title: "获取用户信息失败",
@@ -317,26 +317,54 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
           console.warn('Missing required parameters:', { amount: rawAmount, hasToken: !!token });
           return;
         }
-
-        const response = await fetchApi(config.apiEndpoints.ai.chat, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            messages: [
-              {
-                role: 'system',
-                content: remindText
-              },
-              {
-                role: 'user',
-                content: userInfoText + '\n' + paymentInfo
+        setLoading(true);
+        const mockResponse = {
+          "choices": [
+            {
+              "finish_reason": "stop",
+              "index": 0,
+              "logprobs": null,
+              "message": {
+                "content": "<第一板块: 审核结果>\n- 评估标准：\n  * result：谨慎\n- 审核状态说明：由于用户的基本信息（如年龄段、月收入、职业、家庭状况、理财目标、风险承受能力等）均未知，仅知道此次是为购买iPhone 进行的冲动型消费且采用分期付款方式，无法全面准确评估该支出对用户财务状况的影响，所以给出谨慎的审核结果。\n\n<第二板块: 费用可视化>\n- 可视化 转换场景：\n  * 生成对应商品图片：[此处可插入一张iPhone官方宣传图片，因格式原因暂无法实际提供，你可自行通过苹果官网查找对应iPhone型号图片]\n  * 提供官 方购买链接：https://www.apple.com/cn/shop/buy-iphone （不同型号具体购买页面需进一步选择配置等，此为苹果中国官网购买iPhone的通用入口）\n  * 价值对比图表：\n|消费类型|数量对比（假设其他商品单价）|\n|----|----|\n|旅游（假设单价5000元）|约2.8次|\n|衣服（假设单价1000元）|13.999件|\n|餐饮（假设单价200元）| 约69.995次|\n\n<第三板块: 私董会决议>\n- 吴军模型：\n  - score：3分\n  - comment：信息不足，冲动消费存疑。\n  - emoji：🤔\n- 刘擎模型：\n  - score：2分\n  - comment：不明财务状况下的冲动消费欠妥。\n  - emoji：✖️\n- 冯唐模型：\n  - score：3分\n  - comment：缺乏财务背景支撑的购买行为。\n  - emmoji：⚠️\n\n<第四板块: 财务评估>\n- 必要性评分：3分\n- 必要性评分说明：购买iPhone属于消费电子产品，在不清楚用户具体需求及已有设备情况等前提下  ，仅从已知的冲动消费类型判断，其必要性相对不高。\n- 紧急性评分：2分\n- 紧急性评分说明：购买iPhone通常并非紧急到必须即刻完成的事项，尤其此次还是冲动消费，所以紧急性较低。\n- 财务影响评估：\n  * 短期影响：每月需承担2333.17元的分期还款，可能会对当月现金流造成一定压力，具体取决于用户原本的财务安排。\n  * 长期影响：若后续还有类似冲动消费或其他财务支出，可能影响整体财务规划及储蓄等，也可能因还款压力导致信用风险（如逾期等）。\n- 风险等级：中\n因为不清楚用 户的财务状况全貌，此次冲动消费且分期的支出存在一定不确定性，可能会给用户财务带来如现金流紧张、信用受损等风险，所以风险等级为中。",
+                "role": "assistant"
               }
-            ]
-          })
-        });
+            }
+          ],
+          "created": 1737181965,
+          "id": "021737181950356320f9aadc50dbf6687c3b1e9f9e54ac63edb51",
+          "model": "doubao-pro-256k-241115",
+          "object": "chat.completion",
+          "usage": {
+            "completion_tokens": 630,
+            "prompt_tokens": 541,
+            "total_tokens": 1171,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            }
+          }
+        };
+        
+        // 使用 mock 数据
+        const response = mockResponse;
+        // const response = await fetchApi(config.apiEndpoints.ai.chat, {
+        //   method: 'POST',
+        //   headers: {
+        //     'Authorization': `Bearer ${token}`,
+        //     'Content-Type': 'application/json'
+        //   },
+        //   body: JSON.stringify({
+        //     messages: [
+        //       {
+        //         role: 'system',
+        //         content: remindText
+        //       },
+        //       {
+        //         role: 'user',
+        //         content: userInfoText + '\n' + paymentInfo
+        //       }
+        //     ]
+        //   })
+        // });
 
         // 检查响应格式并解析内容
         let aiContent: string;
@@ -590,7 +618,7 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
     return match?.[1] || '未知';
   }
 
-  if (loading) {
+  if (!loading) {
     return <LoadingOverlay />
   }
 
@@ -641,7 +669,7 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
                 <h3 className="text-lg font-semibold text-gray-900">AI评估策略来源</h3>
                 <div className="flex items-center space-x-2 mt-1">
                   <span className="text-gray-600">来自</span>
-                  <span className="text-blue-600 font-medium">人工智能官方</span>
+                  <span className="text-blue-600 font-medium">人工输入官方</span>
                   <CheckCircle2 className="w-4 h-4 text-green-500" />
                 </div>
               </div>
@@ -693,16 +721,16 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
             <ul className="space-y-4">
               <li className="bg-white rounded-lg p-4 shadow-sm">
                 <h4 className="font-medium text-gray-800 mb-2">必要性评分</h4>
-                <p className="text-sm text-gray-600">{evaluation.financialAssessment?.necessity}/10</p>
-                {evaluation.financialAssessment?.necessityDesc && (
+                <p className="text-sm text-gray-600">{evaluation?.financialAssessment?.necessity}/10</p>
+                {evaluation?.financialAssessment?.necessityDesc && (
                   <p className="text-sm text-gray-500 mt-2">{evaluation.financialAssessment.necessityDesc}</p>
                 )}
               </li>
               <li className="bg-white rounded-lg p-4 shadow-sm">
                 <h4 className="font-medium text-gray-800 mb-2">紧急性评分</h4>
-                <p className="text-sm text-gray-600">{evaluation.financialAssessment?.urgency}/10</p>
-                {evaluation.financialAssessment?.urgencyDesc && (
-                  <p className="text-sm text-gray-500 mt-2">{evaluation.financialAssessment.urgencyDesc}</p>
+                <p className="text-sm text-gray-600">{evaluation?.financialAssessment?.urgency}/10</p>
+                {evaluation?.financialAssessment?.urgencyDesc && (
+                  <p className="text-sm text-gray-500 mt-2">{evaluation?.financialAssessment.urgencyDesc}</p>
                 )}
               </li>
             </ul>
@@ -717,19 +745,19 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
               <div>
                 <h4 className="font-medium text-gray-800 mb-2">短期影响</h4>
                 <p className="text-sm text-gray-700">
-                  {evaluation.financialAssessment?.shortTermImpact}
+                  {evaluation?.financialAssessment?.shortTermImpact}
                 </p>
               </div>
               <div>
                 <h4 className="font-medium text-gray-800 mb-2">长期影响</h4>
                 <p className="text-sm text-gray-700">
-                  {evaluation.financialAssessment?.longTermImpact}
+                  {evaluation?.financialAssessment?.longTermImpact}
                 </p>
               </div>
               <div>
                 <h4 className="font-medium text-gray-800 mb-2">风险等级</h4>
                 <p className="text-sm text-gray-700">
-                  {evaluation.financialAssessment?.riskLevel}
+                  {evaluation?.financialAssessment?.riskLevel}
                 </p>
               </div>
             </div>
