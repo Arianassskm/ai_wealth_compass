@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState,useEffect } from 'react'
 import Image from 'next/image'
 import { Send, ArrowLeft } from 'lucide-react'
 import { Button } from "@/components/ui/button"
@@ -331,6 +331,22 @@ export default function WealthDevelopmentPage() {
       setIsSubmitting(false);
     }
   };
+  const loadingMessages = [
+    "请求正在跑向服务器...",
+    "正在头脑风暴中...",
+    "内容疯狂展示中...",
+  ];
+
+  const [currentLoadingMessageIndex, setCurrentLoadingMessageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentLoadingMessageIndex((prevIndex) => (prevIndex + 1) % loadingMessages.length);
+    }, 2000); // 每2秒切换一次文案
+
+    return () => clearInterval(interval);
+  }, []);
+ // 监听 currentMessageIndex 的变化
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-green-100 to-teal-200 flex flex-col">
@@ -498,7 +514,9 @@ export default function WealthDevelopmentPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-4 flex items-center space-x-3">
             <div className="w-6 h-6 border-2 border-t-transparent border-green-500 rounded-full animate-spin" />
-            <span className="text-sm">分析中...</span>
+            <span className="text-sm text-gray-600">
+            {loadingMessages[currentLoadingMessageIndex]}
+            </span>
           </div>
         </div>
       )}

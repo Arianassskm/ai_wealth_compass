@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState,useEffect } from 'react'
 import Image from 'next/image'
 import { Send, ArrowLeft } from 'lucide-react'
 import { Button } from "@/components/ui/button"
@@ -267,14 +267,32 @@ ${recommendations.map((rec: string) => `• ${rec}`).join('\n')}
 
     return formatted;
   };
+  const loadingMessages = [
+    "请求正在跑向服务器...",
+    "正在头脑风暴中...",
+    "内容疯狂展示中...",
+  ];
 
+  const [currentLoadingMessageIndex, setCurrentLoadingMessageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentLoadingMessageIndex((prevIndex) => (prevIndex + 1) % loadingMessages.length);
+    }, 2000); // 每2秒切换一次文案
+
+    return () => clearInterval(interval);
+  }, []);
+
+ // 监听 currentMessageIndex 的变化
   return (
     <main className="min-h-screen bg-gradient-to-br from-purple-100 to-indigo-200 flex flex-col relative">
       {isSubmitting && (
         <div className="absolute inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="bg-white rounded-lg p-4 shadow-lg flex items-center gap-3">
             <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm text-gray-600">分析中...</span>
+            <span className="text-sm text-gray-600">
+               {loadingMessages[currentLoadingMessageIndex]}
+            </span>
           </div>
         </div>
       )}
