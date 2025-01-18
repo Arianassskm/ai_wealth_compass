@@ -48,20 +48,53 @@ const remindText = `你是一个专业的财务分析和决策支持AI系统。�
 <第三板块: 私董会决议>
 私董会评估规则：
 
-吴军模型：
+张文模型：
 - score：1-10分
 - comment：简短评价
 - emoji：👍/👎/🤔
+- 决策结果：
+  * 最终建议：
+    * 批准/拒绝/谨慎/警告
 
-刘擎模型：
+潘乱模型：
 - score：1-10分
 - comment：简短评价
 - emoji：🙌/✖️/🚧
+- 决策结果：
+  * 最终建议：
+    * 批准/拒绝/谨慎/警告
 
-冯唐模型：
+黄志敏模型：
 - score：1-10分
 - comment：简短评价
 - emoji：🤝/🛑/⚠️
+- 决策结果：
+  * 最终建议：
+    * 批准/拒绝/谨慎/警告
+
+徐玥晨模型：
+- score：1-10分
+- comment：简短评价
+- emoji：🤝/🛑/⚠️
+- 决策结果：
+  * 最终建议：
+    * 批准/拒绝/谨慎/警告
+
+李炯明模型：
+- score：1-10分
+- comment：简短评价
+- emoji：🙌/✖️/🚧
+- 决策结果：
+  * 最终建议：
+    * 批准/拒绝/谨慎/警告
+
+林惠文模型：
+- score：1-10分
+- comment：简短评价
+- emoji：🙌/✖️/🚧
+- 决策结果：
+  * 最终建议：
+    * 批准/拒绝/谨慎/警告
 
 <第四板块: 财务评估>
 - 必要性评分：1-10分
@@ -319,53 +352,53 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
           return;
         }
         setLoading(true);
-        const mockResponse = {
-          "choices": [
-            {
-              "finish_reason": "stop",
-              "index": 0,
-              "logprobs": null,
-              "message": {
-                "content": "<第一板块: 审核结果>\n- 评估标准：\n  * result：谨慎\n- 审核状态说明：由于用户的基本信息（如年龄段、月收入、职业、家庭状况、理财目标、风险承受能力等）均未知，仅知道此次是为购买iPhone 进行的冲动型消费且采用分期付款方式，无法全面准确评估该支出对用户财务状况的影响，所以给出谨慎的审核结果。\n\n<第二板块: 费用可视化>\n- 可视化 转换场景：\n  * 生成对应商品图片：[此处可插入一张iPhone官方宣传图片，因格式原因暂无法实际提供，你可自行通过苹果官网查找对应iPhone型号图片]\n  * 提供官 方购买链接：https://www.apple.com/cn/shop/buy-iphone （不同型号具体购买页面需进一步选择配置等，此为苹果中国官网购买iPhone的通用入口）\n  * 价值对比图表：\n|消费类型|数量对比（假设其他商品单价）|\n|----|----|\n|旅游（假设单价5000元）|约2.8次|\n|衣服（假设单价1000元）|13.999件|\n|餐饮（假设单价200元）| 约69.995次|\n\n<第三板块: 私董会决议>\n- 吴军模型：\n  - score：3分\n  - comment：信息不足，冲动消费存疑。\n  - emoji：🤔\n- 刘擎模型：\n  - score：2分\n  - comment：不明财务状况下的冲动消费欠妥。\n  - emoji：✖️\n- 冯唐模型：\n  - score：3分\n  - comment：缺乏财务背景支撑的购买行为。\n  - emmoji：⚠️\n\n<第四板块: 财务评估>\n- 必要性评分：3分\n- 必要性评分说明：购买iPhone属于消费电子产品，在不清楚用户具体需求及已有设备情况等前提下  ，仅从已知的冲动消费类型判断，其必要性相对不高。\n- 紧急性评分：2分\n- 紧急性评分说明：购买iPhone通常并非紧急到必须即刻完成的事项，尤其此次还是冲动消费，所以紧急性较低。\n- 财务影响评估：\n  * 短期影响：每月需承担2333.17元的分期还款，可能会对当月现金流造成一定压力，具体取决于用户原本的财务安排。\n  * 长期影响：若后续还有类似冲动消费或其他财务支出，可能影响整体财务规划及储蓄等，也可能因还款压力导致信用风险（如逾期等）。\n- 风险等级：中\n因为不清楚用 户的财务状况全貌，此次冲动消费且分期的支出存在一定不确定性，可能会给用户财务带来如现金流紧张、信用受损等风险，所以风险等级为中。",
-                "role": "assistant"
-              }
-            }
-          ],
-          "created": 1737181965,
-          "id": "021737181950356320f9aadc50dbf6687c3b1e9f9e54ac63edb51",
-          "model": "doubao-pro-256k-241115",
-          "object": "chat.completion",
-          "usage": {
-            "completion_tokens": 630,
-            "prompt_tokens": 541,
-            "total_tokens": 1171,
-            "prompt_tokens_details": {
-              "cached_tokens": 0
-            }
-          }
-        };
-        
-        // 使用 mock 数据
-        const response = mockResponse;
-        // const response = await fetchApi(config.apiEndpoints.ai.chat, {
-        //   method: 'POST',
-        //   headers: {
-        //     'Authorization': `Bearer ${token}`,
-        //     'Content-Type': 'application/json'
-        //   },
-        //   body: JSON.stringify({
-        //     messages: [
-        //       {
-        //         role: 'system',
-        //         content: remindText
-        //       },
-        //       {
-        //         role: 'user',
-        //         content: userInfoText + '\n' + paymentInfo
+        // const mockResponse = {
+        //   "choices": [
+        //     {
+        //       "finish_reason": "stop",
+        //       "index": 0,
+        //       "logprobs": null,
+        //       "message": {
+        //         "content": "<第一板块: 审核结果>\n- 评估标准：\n  * result：谨慎\n- 审核状态说明：由于用户的基本信息（如年龄段、月收入、职业、家庭状况、理财目标、风险承受能力等）均未知，仅知道此次是为购买iPhone 进行的冲动型消费且采用分期付款方式，无法全面准确评估该支出对用户财务状况的影响，所以给出谨慎的审核结果。\n\n<第二板块: 费用可视化>\n- 可视化 转换场景：\n  * 生成对应商品图片：[此处可插入一张iPhone官方宣传图片，因格式原因暂无法实际提供，你可自行通过苹果官网查找对应iPhone型号图片]\n  * 提供官 方购买链接：https://www.apple.com/cn/shop/buy-iphone （不同型号具体购买页面需进一步选择配置等，此为苹果中国官网购买iPhone的通用入口）\n  * 价值对比图表：\n|消费类型|数量对比（假设其他商品单价）|\n|----|----|\n|旅游（假设单价5000元）|约2.8次|\n|衣服（假设单价1000元）|13.999件|\n|餐饮（假设单价200元）| 约69.995次|\n\n<第三板块: 私董会决议>\n- 吴军模型：\n  - score：3分\n  - comment：信息不足，冲动消费存疑。\n  - emoji：🤔\n- 刘擎模型：\n  - score：2分\n  - comment：不明财务状况下的冲动消费欠妥。\n  - emoji：✖️\n- 冯唐模型：\n  - score：3分\n  - comment：缺乏财务背景支撑的购买行为。\n  - emmoji：⚠️\n\n<第四板块: 财务评估>\n- 必要性评分：3分\n- 必要性评分说明：购买iPhone属于消费电子产品，在不清楚用户具体需求及已有设备情况等前提下  ，仅从已知的冲动消费类型判断，其必要性相对不高。\n- 紧急性评分：2分\n- 紧急性评分说明：购买iPhone通常并非紧急到必须即刻完成的事项，尤其此次还是冲动消费，所以紧急性较低。\n- 财务影响评估：\n  * 短期影响：每月需承担2333.17元的分期还款，可能会对当月现金流造成一定压力，具体取决于用户原本的财务安排。\n  * 长期影响：若后续还有类似冲动消费或其他财务支出，可能影响整体财务规划及储蓄等，也可能因还款压力导致信用风险（如逾期等）。\n- 风险等级：中\n因为不清楚用 户的财务状况全貌，此次冲动消费且分期的支出存在一定不确定性，可能会给用户财务带来如现金流紧张、信用受损等风险，所以风险等级为中。",
+        //         "role": "assistant"
         //       }
-        //     ]
-        //   })
-        // });
+        //     }
+        //   ],
+        //   "created": 1737181965,
+        //   "id": "021737181950356320f9aadc50dbf6687c3b1e9f9e54ac63edb51",
+        //   "model": "doubao-pro-256k-241115",
+        //   "object": "chat.completion",
+        //   "usage": {
+        //     "completion_tokens": 630,
+        //     "prompt_tokens": 541,
+        //     "total_tokens": 1171,
+        //     "prompt_tokens_details": {
+        //       "cached_tokens": 0
+        //     }
+        //   }
+        // };
+        
+        // // 使用 mock 数据
+        // const response = mockResponse;
+        const response = await fetchApi(config.apiEndpoints.ai.chat, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            messages: [
+              {
+                role: 'system',
+                content: remindText
+              },
+              {
+                role: 'user',
+                content: userInfoText + '\n' + paymentInfo
+              }
+            ]
+          })
+        });
 
         // 检查响应格式并解析内容
         let aiContent: string;
@@ -549,7 +582,7 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
 
   function extractBoardDecisions(content: string) {
     const decisions: AIEvaluation['boardDecisions'] = {};
-    const models = ['吴军', '刘擎', '冯唐'];
+    const models = ['张文', '潘乱', '黄志敏','徐玥晨','李炯明','林惠文'];
     
     models.forEach(model => {
       const scoreMatch = content.match(new RegExp(`${model}[^]*?score[\"'\s]*[:：]\\s*(\\d+)`, 'i'));
@@ -626,9 +659,18 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
   // Transform board decisions into carousel format
   const boardMembers = Object.entries(evaluation?.boardDecisions || {}).map(([name, decision]) => ({
     name,
-    role: name === '吴军' ? 'Google中国工程师' : 
-          name === '张一鸣' ? '字节跳动创始人' : 
-          name === '刘擎' ? 'FRM金融学教授' : '专家顾问',
+    role: name === '张文' ? '稀土掘金主编' : 
+          name === '潘乱' ? '乱翻书主理人' : 
+          name === '黄志敏' ? '北京大学汇丰商学院创新创业中心副主任':
+          name === '徐玥晨'? '明势资本投资副总裁':
+          name === '李炯明' ? 'CSDN高级副总裁':
+          name === '林惠文'? '真格基金VP': '',
+    avatar: name === '张文'? '/images/zw.png' :
+            name === '潘乱'? '/images/pl.png' :
+            name === '黄志敏'? '/images/hzm.png' :
+            name === '徐玥晨'? '/images/xyc.png' :
+            name === '李炯明'? '/images/ljm.png' :
+            name === '林惠文'? '/images/lhw.png' : '/images/placeholder.svg',
     score: decision.score,
     comment: decision.comment,
     emoji: decision.emoji
@@ -659,6 +701,16 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6 pb-16">
+          {/* 基本信息 */}
+          <Card>
+          <CardContent className="p-6">
+            <div className="flex flex-col items-center">
+              <StatusBadge status={evaluation?.result || 'pending'} className="text-2xl px-6 py-2 mb-4" />
+              <h2 className="text-xl font-bold text-gray-900 text-center mb-2">{evaluation?.expenseDescription}</h2>
+              <p className="text-3xl font-bold text-blue-600">¥{evaluation?.amount}</p>
+            </div>
+          </CardContent>
+        </Card>
         {/* AI评估策略来源 */}
         <Card>
           <CardContent className="p-6">
@@ -677,7 +729,6 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
             </div>
           </CardContent>
         </Card>
-
         {/* 私董会决议 */}
         <Card>
           <CardContent className="p-6">
@@ -691,16 +742,7 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
           </CardContent>
         </Card>
 
-        {/* 基本信息 */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col items-center">
-              <StatusBadge status={evaluation?.result || 'pending'} className="text-2xl px-6 py-2 mb-4" />
-              <h2 className="text-xl font-bold text-gray-900 text-center mb-2">{evaluation?.expenseDescription}</h2>
-              <p className="text-3xl font-bold text-blue-600">¥{evaluation?.amount}</p>
-            </div>
-          </CardContent>
-        </Card>
+      
 
         {/* 费用可视化 */}
         <Card>

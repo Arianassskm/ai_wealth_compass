@@ -20,35 +20,33 @@ interface ShoppingComparisonProps {
 }
 
 export function ShoppingComparison({ items }: ShoppingComparisonProps) {
-  const [selectedItems, setSelectedItems] = useState<string[]>([])
-  const [imageError, setImageError] = useState<{[key: string]: boolean}>({})
+  const [selectedItems, setSelectedItems] = useState<string[]>(items.map(item => item.category));
+  const [imageError, setImageError] = useState<{[key: string]: boolean}>({});
 
   const toggleItem = (category: string) => {
     setSelectedItems(prev => 
       prev.includes(category) 
         ? prev.filter(item => item !== category)
         : [...prev, category]
-    )
-  }
+    );
+  };
 
   const handleImageError = (category: string) => {
     setImageError(prev => ({
       ...prev,
       [category]: true
-    }))
-  }
+    }));
+  };
 
   const total = items
     .filter(item => selectedItems.includes(item.category))
-    .reduce((sum, item) => sum + (parseFloat(item.price?.replace(/[¥,]/g, '') || '0')), 0)
-
+    .reduce((sum, item) => sum + (parseFloat(item.price?.replace(/[¥,]/g, '') || '0')), 0);
   return (
     <div className="space-y-2 bg-white rounded-lg">
-     
       {items.map((item, index) => (
         <div key={index} className="flex items-start space-x-3 py-4 border-b border-gray-100 last:border-0">
           <Checkbox
-            checked={selectedItems.includes(item.category)}
+            defaultChecked // 设置默认选中
             onClick={() => toggleItem(item.category)}
             className="mt-1"
           />
@@ -86,7 +84,6 @@ export function ShoppingComparison({ items }: ShoppingComparisonProps) {
           </div>
         </div>
       ))}
-
       {selectedItems.length > 0 && (
         <div className="mt-4 space-y-3">
           <div className="flex justify-between items-center text-sm">
@@ -97,12 +94,12 @@ export function ShoppingComparison({ items }: ShoppingComparisonProps) {
               ¥{total.toFixed(2)}
             </div>
           </div>
-          <Button className="w-full bg-pink-500 hover:bg-pink-600" size="lg">
+          <Button className="w-full bg-gradient-to-r from-[#dd5382] to-[#dd5382] hover:bg-gradient-to-r hover:from-[#dd5382] hover:to-[#dd5382] !important" size="lg">
             去抖音商城购买
           </Button>
         </div>
       )}
     </div>
-  )
+  );
 }
 

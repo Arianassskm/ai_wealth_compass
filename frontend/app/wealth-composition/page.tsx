@@ -63,7 +63,7 @@ const mockAssets: Asset[] = [
     expiryDate: '2024-12-31',
     status: '使用中',
     usageCount: 15,
-    icon: '/placeholder.svg?height=32&width=32',
+    icon: '/images/gm.png?height=32&width=32',
     secondHandPrice: 85,
     discount: 0.15
   },
@@ -77,7 +77,7 @@ const mockAssets: Asset[] = [
     expiryDate: '2025-01-14',
     status: '使用中',
     usageCount: 1,
-    icon: '/placeholder.svg?height=32&width=32',
+    icon: '/images/coze.png?height=32&width=32',
     secondHandPrice: 0.5,
     discount: 0.5
   },
@@ -90,7 +90,7 @@ const mockAssets: Asset[] = [
     purchaseDate: '2024-03-01',
     status: '使用中',
     usageCount: 1,
-    icon: '/placeholder.svg?height=32&width=32',
+    icon: '/images/mac-m4.jpg?height=32&width=32',
     secondHandPrice: 13500,
   },
   {
@@ -102,7 +102,7 @@ const mockAssets: Asset[] = [
     purchaseDate: '2023-09-15',
     status: '使用中',
     usageCount: 123,
-    icon: '/placeholder.svg?height=32&width=32',
+    icon: '/images/iPhone14promax.jpg?height=32&width=32',
     secondHandPrice: 6200
   },
   {
@@ -114,7 +114,7 @@ const mockAssets: Asset[] = [
     purchaseDate: '2023-06-01',
     status: '使用中',
     usageCount: 228,
-    icon: '/placeholder.svg?height=32&width=32',
+    icon: '/images/mac-m4.jpg?height=32&width=32',
     secondHandPrice: 5800
   },
   {
@@ -126,7 +126,7 @@ const mockAssets: Asset[] = [
     purchaseDate: '2023-12-01',
     status: '使用中',
     usageCount: 46,
-    icon: '/placeholder.svg?height=32&width=32',
+    icon: '/images/airpods-4.jpg?height=32&width=32',
     secondHandPrice: 850
   }
 ]
@@ -345,9 +345,9 @@ export default function WealthCompositionPage() {
 
        <Button onClick={handleAddComponent} className="w-full mb-4">
          <Plus className="w-4 h-4 mr-2" />
-         添加其他资产
+         保存资产
        </Button>
-       <div className="flex justify-end">
+       {/* <div className="flex justify-end">
          <Button 
            onClick={handleSaveAll}
            className="bg-primary hover:bg-primary/90 text-primary-foreground transition-colors flex items-center gap-2 px-4 py-2 rounded-md"
@@ -355,7 +355,7 @@ export default function WealthCompositionPage() {
            <Save className="w-4 h-4" />
            保存更改
          </Button>
-       </div>
+       </div> */}
      </div>
    </div>
  )

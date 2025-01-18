@@ -140,7 +140,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
             { role: 'system', content: reminderText },
             { 
               role: 'user', 
-              content: `我是${data.age_group}, 我的人生阶段是${lifeStageEn}, 我的性别是${genderEn}，请预估我的月收入` 
+              content: `我是${data.age_group}, 我的人生阶段是${lifeStageEn}, 我的性别是${genderEn}，我所在的城市是深圳。请预估我的月收入` 
             }
           ]
         })
