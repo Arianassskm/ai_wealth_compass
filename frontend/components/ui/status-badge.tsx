@@ -7,17 +7,17 @@ interface StatusBadgeProps {
 
 const getStatusColor = (status: string) => {
   switch (status.toLowerCase()) {
-    case 'approved':
+    case '通过':
     case '通过':
       return 'bg-green-100 text-green-800'
-    case 'caution':
+    case '谨慎':
     case '谨慎':
       return 'bg-yellow-100 text-yellow-800'
-    case 'warning':
+    case '警告':
     case '警告':
       return 'bg-orange-100 text-orange-800'
-    case 'rejected':
-    case '不通过':
+    case '拒绝':
+    case '拒绝':
       return 'bg-red-100 text-red-800'
     case 'pending':
       return 'bg-gray-100 text-gray-800'
@@ -27,6 +27,7 @@ const getStatusColor = (status: string) => {
 }
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
+  console.log('status',status)
   return (
     <span
       className={cn(

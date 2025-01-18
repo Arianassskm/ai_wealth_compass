@@ -35,7 +35,7 @@ export function BoardCarousel({ members }: BoardCarouselProps) {
       }
     };
 
-    const intervalId = setInterval(rotateCarousel, 2000);
+    const intervalId = setInterval(rotateCarousel, 3500);
 
     return () => clearInterval(intervalId);
   }, []);
