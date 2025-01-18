@@ -618,7 +618,7 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
     return match?.[1] || '未知';
   }
 
-  if (!loading) {
+  if (loading) {
     return <LoadingOverlay />
   }
 
