@@ -1,0 +1,331 @@
+{
+  "users": [
+    {
+      "id": "1736736668879",
+      "email": "lisi@mail.com",
+      "password": "$2a$10$yCrowTKC2wa/EBATIzuP9eUpG1P8qRKAKa2S30UdqdbvtYZ50DzKe",
+      "name": "李四",
+      "avatar": "/placeholder.svg",
+      "life_stage": "career_growth",
+      "risk_tolerance": "moderate",
+      "age_group": "",
+      "employment_status": "朝九晚五",
+      "estimated_monthly_income": 15000,
+      "short_term_goal": "",
+      "mid_term_goal": "",
+      "long_term_goal": "",
+      "createdAt": "2025-01-13T02:51:08.879Z",
+      "updatedAt": "2025-01-18T14:04:46.701Z",
+      "gender": "",
+      "monthly_expenses": 8000,
+      "savings": 50000,
+      "debt_amount": 0,
+      "debt_type": [],
+      "assets": {
+        "cash": 0,
+        "stock": 0,
+        "fund": 0,
+        "insurance": 0,
+        "real_estate": 0,
+        "other": 0
+      },
+      "investment_experience": "beginner",
+      "preferred_investment_types": [],
+      "investment_horizon": "medium",
+      "monthly_investment_amount": 0,
+      "expected_return_rate": 0,
+      "financial_status": "小有盈余",
+      "housing_status": "小家初成",
+      "lifestyle_status": "勤俭持家",
+      "risk_score": 60,
+      "investment_advice": "专注事业发展和晋升。可以考虑配置一些进取型投资产品。 可以采取相对积极的投资策略，增加权益类资产的配置比例。建议关注优质成长股和行业龙头。",
+      "portfolio_suggestion": {
+        "cash": 10,
+        "bond": 20,
+        "stock": 50,
+        "gold": 10,
+        "real_estate": 10
+      },
+      "lastAssessmentAt": "2025-01-18T14:04:46.701Z",
+      "aiConfig": {
+        "model": "doubao",
+        "temperature": 0.7,
+        "maxTokens": 2000,
+        "topP": 0.9,
+        "frequencyPenalty": 0.5,
+        "presencePenalty": 0.5,
+        "systemPrompt": "我是您的智能理财助手，可以为您提供个性化的理财建议。"
+      },
+      "ai_evaluation_details": {
+        "budget_settings": {
+          "total_budget": 100000,
+          "categories": [
+            {
+              "name": "生活必需品",
+              "percentage": 50,
+              "color": "rgb(255, 99, 132)",
+              "amount": 50000
+            },
+            {
+              "name": "娱乐",
+              "percentage": 23.896103896103895,
+              "color": "rgb(54, 162, 235)",
+              "amount": 23896
+            },
+            {
+              "name": "储蓄",
+              "percentage": 17.402597402597404,
+              "color": "rgb(255, 206, 86)",
+              "amount": 17403
+            },
+            {
+              "name": "其他",
+              "percentage": 8.701298701298702,
+              "color": "rgb(75, 192, 192)",
+              "amount": 8701
+            }
+          ],
+          "monthly_budget": {
+            "income": 20000,
+            "expenses": {
+              "fixed": {
+                "housing": 30000,
+                "utilities": 5000,
+                "transportation": 10000
+              },
+              "variable": {
+                "food": 20000,
+                "entertainment": 15000,
+                "shopping": 10000
+              },
+              "savings": 10000
+            },
+            "current_month": "2025-01",
+            "history": []
+          }
+        },
+        "last_updated": "2025-01-16T13:45:21.608Z",
+        "wealth_composition": {
+          "last_updated": "2025-01-16T13:45:49.174Z",
+          "components": [
+            {
+              "type": "新资产项目",
+              "percentage": 0.030039050765995796,
+              "amount": 20,
+              "risk_level": "medium",
+              "liquidity": "medium"
+            },
+            {
+              "type": "新资产项目2",
+              "percentage": 4.851306698708321,
+              "amount": 3230,
+              "risk_level": "medium",
+              "liquidity": "medium"
+            },
+            {
+              "type": "新资产项目3",
+              "percentage": 50.06007810153199,
+              "amount": 33330,
+              "risk_level": "medium",
+              "liquidity": "medium"
+            },
+            {
+              "type": "新资产项目4",
+              "percentage": 45.05857614899369,
+              "amount": 30000,
+              "risk_level": "medium",
+              "liquidity": "medium"
+            }
+          ],
+          "analysis": {
+            "risk_score": 65,
+            "diversification_score": 80,
+            "liquidity_score": 70,
+            "recommendations": []
+          }
+        }
+      },
+      "basic_salary": 15000,
+      "necessary_expenses": 7500,
+      "lifestyle": "moderate"
+    },
+    {
+      "id": "1736992182865",
+      "email": "25123000@qq.com",
+      "password": "$2a$10$6.uN9GIR2GH5Jn.HgvzSEu2KPGGfORVIBi.cdy6MSmSL7gkDbGTE6",
+      "name": "lxy",
+      "avatar": "/placeholder.svg",
+      "life_stage": "career_growth",
+      "age_group": "80后",
+      "gender": "male",
+      "employment_status": "朝九晚五",
+      "estimated_monthly_income": 0,
+      "monthly_expenses": 30000,
+      "savings": 800000,
+      "debt_amount": 0,
+      "debt_type": [],
+      "assets": {
+        "cash": 0,
+        "stock": 0,
+        "fund": 0,
+        "insurance": 0,
+        "real_estate": 0,
+        "other": 0
+      },
+      "risk_tolerance": "moderate",
+      "investment_experience": "beginner",
+      "preferred_investment_types": [],
+      "investment_horizon": "medium",
+      "short_term_goal": "",
+      "mid_term_goal": "",
+      "long_term_goal": "",
+      "monthly_investment_amount": 0,
+      "expected_return_rate": 0,
+      "risk_score": 60,
+      "investment_advice": "专注事业发展和晋升。可以考虑配置一些进取型投资产品。 可以采取相对积极的投资策略，增加权益类资产的配置比例。建议关注优质成长股和行业龙头。",
+      "portfolio_suggestion": {
+        "cash": 10,
+        "bond": 20,
+        "stock": 50,
+        "gold": 10,
+        "real_estate": 10
+      },
+      "createdAt": "2025-01-16T01:49:42.865Z",
+      "updatedAt": "2025-01-16T01:52:20.772Z",
+      "lastAssessmentAt": "2025-01-16T01:52:20.772Z",
+      "financial_status": "精致生活",
+      "housing_status": "温馨三口",
+      "lifestyle_status": "品质追求",
+      "aiConfig": {
+        "model": "gpt-3.5-turbo",
+        "temperature": 0.7,
+        "maxTokens": 2000,
+        "topP": 0.9,
+        "frequencyPenalty": 0.5,
+        "presencePenalty": 0.5,
+        "systemPrompt": "我是您的智能理财助手，可以为您提供个性化的理财建议。"
+      },
+      "ai_evaluation_details": {
+        "budget_settings": {
+          "total_budget": 0,
+          "categories": [],
+          "monthly_budget": {
+            "income": 0,
+            "expenses": {
+              "fixed": {},
+              "variable": {},
+              "savings": 0
+            },
+            "current_month": "2025-01",
+            "history": []
+          }
+        },
+        "wealth_composition": {
+          "last_updated": "2025-01-16T02:38:57.982Z",
+          "components": [
+            {
+              "type": "新资产项目2",
+              "percentage": 100,
+              "amount": 3330,
+              "risk_level": "medium",
+              "liquidity": "medium"
+            }
+          ],
+          "analysis": {
+            "risk_score": 65,
+            "diversification_score": 80,
+            "liquidity_score": 70,
+            "recommendations": []
+          }
+        },
+        "last_updated": "2025-01-16T01:49:42.865Z"
+      }
+    },
+    {
+      "id": "1737127247208",
+      "email": "wenbangluo@gmail.com",
+      "password": "$2a$10$R0RAss3EZvjFP.XgGq/VxeK6gQNQ0oT8AqJXGIIMorrTfu5aQ153S",
+      "name": "文案",
+      "avatar": "/placeholder.svg",
+      "necessary_expenses": 0,
+      "life_stage": "奋斗期",
+      "basic_salary": 0,
+      "age_group": "26-35",
+      "gender": "",
+      "employment_status": "未知",
+      "estimated_monthly_income": 0,
+      "monthly_expenses": 0,
+      "savings": 0,
+      "debt_amount": 0,
+      "debt_type": [],
+      "assets": {
+        "cash": 0,
+        "stock": 0,
+        "fund": 0,
+        "insurance": 0,
+        "real_estate": 0,
+        "other": 0
+      },
+      "risk_tolerance": "moderate",
+      "investment_experience": "beginner",
+      "preferred_investment_types": [],
+      "investment_horizon": "medium",
+      "short_term_goal": "",
+      "mid_term_goal": "",
+      "long_term_goal": "",
+      "monthly_investment_amount": 0,
+      "expected_return_rate": 0,
+      "risk_score": 0,
+      "investment_advice": "",
+      "portfolio_suggestion": {
+        "cash": 0,
+        "bond": 0,
+        "stock": 0,
+        "gold": 0,
+        "real_estate": 0
+      },
+      "createdAt": "2025-01-17T15:20:47.208Z",
+      "updatedAt": "2025-01-17T15:20:47.208Z",
+      "lastAssessmentAt": "2025-01-17T15:20:47.208Z",
+      "financial_status": "",
+      "housing_status": "",
+      "lifestyle_status": "",
+      "aiConfig": {
+        "model": "gpt-3.5-turbo",
+        "temperature": 0.7,
+        "maxTokens": 2000,
+        "topP": 0.9,
+        "frequencyPenalty": 0.5,
+        "presencePenalty": 0.5,
+        "systemPrompt": "我是您的智能理财助手，可以为您提供个性化的理财建议。"
+      },
+      "ai_evaluation_details": {
+        "budget_settings": {
+          "total_budget": 0,
+          "categories": [],
+          "monthly_budget": {
+            "income": 0,
+            "expenses": {
+              "fixed": {},
+              "variable": {},
+              "savings": 0
+            },
+            "current_month": "2025-01",
+            "history": []
+          }
+        },
+        "wealth_composition": {
+          "last_updated": "2025-01-17T15:20:47.208Z",
+          "components": [],
+          "analysis": {
+            "risk_score": 0,
+            "diversification_score": 0,
+            "liquidity_score": 0,
+            "recommendations": []
+          }
+        },
+        "last_updated": "2025-01-17T15:20:47.208Z"
+      }
+    }
+  ]
+}

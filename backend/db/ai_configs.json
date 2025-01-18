@@ -1,0 +1,40 @@
+{
+  "configs": [
+    {
+      "userId": "1",
+      "provider": "豆包",
+      "apiKey": "",
+      "baseUrl": "https://api.aliyun.com/v1",
+      "isEnabled": false,
+      "updatedAt": "2024-01-15T08:00:00.000Z"
+    },
+    {
+      "userId": "1736736668879",
+      "provider": "字节跳动",
+      "apiKey": "TUdSa016SXhNMlV6TUdaak5EQmpNRGhsTXpVMU4ySXdPVFppTkdZeFlqVQ==",
+      "baseUrl": "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
+      "isEnabled": true,
+      "updatedAt": "2025-01-15T03:02:36.686Z",
+      "id": "dfd264d0-a214-4f85-adaa-355bb5706f04",
+      "systemPrompt": "你是一个专业的理财顾问助手",
+      "modelId": "ep-20250114145526-j2hzq",
+      "temperature": 0.7,
+      "maxTokens": 1000,
+      "createdAt": "2025-01-15T03:02:29.849Z"
+    },
+    {
+      "id": "0e720f25-2b1b-48a8-9676-2168af784014",
+      "userId": "1736992182865",
+      "provider": "字节跳动",
+      "apiKey": "",
+      "baseUrl": "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
+      "isEnabled": true,
+      "systemPrompt": "你是一个专业的理财顾问助手",
+      "modelId": "ep-20250114145526-j2hzq",
+      "temperature": 0.7,
+      "maxTokens": 1000,
+      "createdAt": "2025-01-16T01:50:03.153Z",
+      "updatedAt": "2025-01-16T01:50:59.164Z"
+    }
+  ]
+}

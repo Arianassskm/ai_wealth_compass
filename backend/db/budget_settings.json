@@ -1,0 +1,21 @@
+{
+  "budget_settings": [
+    {
+      "id": "budget-001",
+      "userId": "user-001",
+      "monthlyBudget": 5000,
+      "categoryBudgets": [
+        {
+          "category": "生活必需品",
+          "amount": 2500
+        }
+      ],
+      "alerts": {
+        "enabled": true,
+        "threshold": 80
+      },
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    }
+  ]
+} 

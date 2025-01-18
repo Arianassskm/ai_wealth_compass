@@ -35,7 +35,7 @@ yarn-error.log*
 *.swo
 
 # Database
-backend/db/*.json
+#backend/db/*.json
 
 .next/cache/webpack/client-development/1.pack.gz
 .next/cache/webpack/client-development/5.pack.gz

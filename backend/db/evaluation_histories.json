@@ -1,0 +1,209 @@
+{
+  "histories": [
+    {
+      "userId": "1736736668879",
+      "expenseType": "impulse",
+      "amount": 13,
+      "result": "谨慎",
+      "description": "购买iPhone",
+      "paymentMethod": "installment",
+      "installmentInfo": {
+        "value": 9,
+        "unit": "month",
+        "monthlyPayment": 1444.44
+      },
+      "id": "48a9218b-5ea3-49d3-9e6d-db69e9dc0112",
+      "createdAt": "2025-01-16T11:00:29.763Z"
+    },
+    {
+      "userId": "1736736668879",
+      "expenseType": "impulse",
+      "amount": 13,
+      "result": "谨慎",
+      "description": "购买iPhone",
+      "paymentMethod": "installment",
+      "installmentInfo": {
+        "value": 9,
+        "unit": "month",
+        "monthlyPayment": 1444.44
+      },
+      "id": "1138ccf1-ccdf-4429-b6d9-49a075d4677f",
+      "createdAt": "2025-01-16T11:05:16.455Z"
+    },
+    {
+      "userId": "1736736668879",
+      "expenseType": "impulse",
+      "amount": 13,
+      "result": "谨慎",
+      "description": "购买iPhone",
+      "paymentMethod": "installment",
+      "installmentInfo": {
+        "value": 9,
+        "unit": "month",
+        "monthlyPayment": 1444.44
+      },
+      "id": "6e806336-39be-4739-8d99-d4e3acf45577",
+      "createdAt": "2025-01-16T11:06:43.554Z"
+    },
+    {
+      "userId": "1736736668879",
+      "expenseType": "impulse",
+      "amount": 13,
+      "result": "谨慎",
+      "description": "购买iPhone",
+      "paymentMethod": "installment",
+      "installmentInfo": {
+        "value": 9,
+        "unit": "month",
+        "monthlyPayment": 1444.44
+      },
+      "id": "0c1a982c-6533-416a-b702-e969dd8939ef",
+      "createdAt": "2025-01-16T11:08:28.366Z"
+    },
+    {
+      "userId": "1736736668879",
+      "expenseType": "impulse",
+      "amount": 13,
+      "result": "谨慎",
+      "description": "购买iPhone",
+      "paymentMethod": "installment",
+      "installmentInfo": {
+        "value": 9,
+        "unit": "month",
+        "monthlyPayment": 1444.44
+      },
+      "id": "da210f3e-1d76-4117-9038-bc5b6ccff926",
+      "createdAt": "2025-01-16T11:12:22.123Z"
+    },
+    {
+      "userId": "1736736668879",
+      "expenseType": "impulse",
+      "amount": 13,
+      "result": "谨慎",
+      "description": "购买iPhone",
+      "paymentMethod": "installment",
+      "installmentInfo": {
+        "value": 9,
+        "unit": "month",
+        "monthlyPayment": 1444.44
+      },
+      "id": "cab56739-0d2b-4349-964e-c44d5f45ce7e",
+      "createdAt": "2025-01-16T11:13:28.907Z"
+    },
+    {
+      "userId": "1736736668879",
+      "expenseType": "impulse",
+      "amount": 13,
+      "result": "谨慎",
+      "description": "购买iPhone",
+      "paymentMethod": "installment",
+      "installmentInfo": {
+        "value": 9,
+        "unit": "month",
+        "monthlyPayment": 1444.44
+      },
+      "id": "5825ec8f-fc4a-4eb5-95f6-679e40ffd121",
+      "createdAt": "2025-01-16T11:15:06.190Z"
+    },
+    {
+      "userId": "1736736668879",
+      "expenseType": "impulse",
+      "amount": 13,
+      "result": "谨慎",
+      "description": "购买iPhone",
+      "paymentMethod": "installment",
+      "installmentInfo": {
+        "value": 9,
+        "unit": "month",
+        "monthlyPayment": 1444.44
+      },
+      "id": "d5978e12-f27b-4b75-b9c5-52c77fda2728",
+      "createdAt": "2025-01-16T11:15:56.663Z"
+    },
+    {
+      "userId": "1736736668879",
+      "expenseType": "impulse",
+      "amount": 13,
+      "result": "谨慎",
+      "description": "购买iPhone",
+      "paymentMethod": "installment",
+      "installmentInfo": {
+        "value": 9,
+        "unit": "month",
+        "monthlyPayment": 1444.44
+      },
+      "id": "98ccf793-d40e-418e-ad99-c2cb125d7d3f",
+      "createdAt": "2025-01-16T11:17:28.369Z"
+    },
+    {
+      "id": "1737025210685",
+      "type": "expense_evaluation",
+      "userId": "1736736668879",
+      "expenseType": "impulse",
+      "amount": 13000,
+      "result": "谨慎",
+      "description": "购买iPhone",
+      "paymentMethod": "分期付款",
+      "installmentInfo": {
+        "value": 9,
+        "unit": "month",
+        "monthlyPayment": 1444.44,
+        "installmentType": "月付"
+      },
+      "analysis": {
+        "necessity": 3,
+        "necessityDesc": "iPhone属于非生活必需品，此次购买属于冲动消费，并非基于实际需求的必要支出。",
+        "urgency": 1,
+        "urgencyDesc": "购买iPhone并非紧急情况，不存在必须立刻购买的理由。",
+        "shortTermImpact": "每月需承担1444.44元的分期还款，会对当月可支配收入产生一定影响，可能导致当月其他消费需缩减。",
+        "longTermImpact": "若后续再有类似冲动消费情况，可能影响整体财务状况，难以实现财富积累。",
+        "riskLevel": "中",
+        "valueComparisons": [
+          {
+            "category": "支出用途",
+            "quantity": "等价物品或活动价值对比参考"
+          },
+          {
+            "category": "购买iPhone",
+            "quantity": "衣服：约1625X8，餐饮：约650X20，旅游（短途周边游）：约1300X10"
+          }
+        ],
+        "boardDecisions": {
+          "吴军": {
+            "score": 4,
+            "comment": "冲动消费，非必要支出。",
+            "emoji": "👎"
+          },
+          "刘擎": {
+            "score": 3,
+            "comment": "未考虑财务规划的消费行为。",
+            "emoji": "✖️"
+          },
+          "冯唐": {
+            "score": 3,
+            "comment": "消费欠理性。",
+            "emoji": "🛑"
+          }
+        },
+        "finalSuggestion": "用户月收入16000元，此次支出13000元用于购买iPhone且采用分期付款方式，虽然月还款额相对月收入占比不算过高，但该支出属于冲动消费类型，可能会对后续财务规划产生一定影响，故审核状态为谨慎。"
+      },
+      "createdAt": "2025-01-16T11:45:41.911Z"
+    },
+    {
+      "userId": "1736736668879",
+      "expenseType": "impulse",
+      "amount": 13000,
+      "result": "谨慎",
+      "description": "购买iPhone",
+      "paymentMethod": "分期付款",
+      "installmentInfo": {
+        "value": 9,
+        "unit": "month",
+        "monthlyPayment": 1444.44,
+        "installmentType": "月付"
+      },
+      "id": "e3297c1c-e787-4dce-82e5-5b4be228b28c",
+      "createdAt": "2025-01-16T11:47:21.481Z"
+    }
+  ]
+}

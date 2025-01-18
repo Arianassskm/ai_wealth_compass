@@ -1,0 +1,52 @@
+{
+  "users": {
+    "user123": {
+      "goals": [
+        {
+          "id": "1",
+          "name": "购买新车",
+          "targetAmount": 200000,
+          "currentAmount": 50000,
+          "deadline": "2024-12-31T00:00:00.000Z",
+          "createdAt": "2024-01-01T00:00:00.000Z",
+          "updatedAt": "2024-01-01T00:00:00.000Z",
+          "status": "in_progress"
+        },
+        {
+          "id": "2",
+          "name": "环球旅行",
+          "targetAmount": 100000,
+          "currentAmount": 30000,
+          "deadline": "2025-06-30T00:00:00.000Z",
+          "createdAt": "2024-01-01T00:00:00.000Z",
+          "updatedAt": "2024-01-01T00:00:00.000Z",
+          "status": "in_progress"
+        },
+        {
+          "id": "3",
+          "name": "创业资金",
+          "targetAmount": 500000,
+          "currentAmount": 100000,
+          "deadline": "2026-01-01T00:00:00.000Z",
+          "createdAt": "2024-01-01T00:00:00.000Z",
+          "updatedAt": "2024-01-01T00:00:00.000Z",
+          "status": "in_progress"
+        }
+      ],
+      "completedGoals": [],
+      "settings": {
+        "notifications": {
+          "enabled": true,
+          "frequency": "weekly",
+          "lastNotified": "2024-01-01T00:00:00.000Z"
+        },
+        "currency": "CNY",
+        "timezone": "Asia/Shanghai"
+      }
+    }
+  },
+  "_metadata": {
+    "lastUpdated": "2024-01-01T00:00:00.000Z",
+    "version": "1.0.0"
+  }
+}

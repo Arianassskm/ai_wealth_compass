@@ -1,0 +1,193 @@
+{
+  "monthlyFinances": [
+    {
+      "id": "1",
+      "userId": "1",
+      "year": 2024,
+      "month": 12,
+      "disposableIncome": 15000,
+      "totalIncome": 25000,
+      "totalExpenses": 10000,
+      "savings": 3000,
+      "investments": 2000,
+      "createdAt": "2024-12-31T00:00:00.000Z",
+      "categories": {
+        "salary": 20000,
+        "bonus": 5000,
+        "rent": 3000,
+        "food": 2000,
+        "transport": 1000,
+        "utilities": 500,
+        "entertainment": 1500,
+        "others": 2000
+      },
+      "investmentDetails": {
+        "stocks": 1000,
+        "funds": 500,
+        "deposits": 500
+      }
+    },
+    {
+      "id": "2",
+      "userId": "1736736668879",
+      "year": 2025,
+      "month": 1,
+      "disposableIncome": 16000,
+      "totalIncome": 26000,
+      "totalExpenses": 10000,
+      "savings": 3500,
+      "investments": 2500,
+      "createdAt": "2025-01-14T03:19:56.352Z",
+      "categories": {
+        "salary": 21000,
+        "bonus": 5000,
+        "rent": 3000,
+        "food": 2000,
+        "transport": 1000,
+        "utilities": 500,
+        "entertainment": 1500,
+        "others": 2000
+      },
+      "investmentDetails": {
+        "stocks": 1200,
+        "funds": 800,
+        "deposits": 500
+      }
+    },
+    {
+      "id": "1736825432508",
+      "userId": "1736736668879",
+      "year": 2024,
+      "month": 12,
+      "disposableIncome": 16000,
+      "totalIncome": 26000,
+      "totalExpenses": 10000,
+      "savings": 4800,
+      "investments": 3200,
+      "createdAt": "2025-01-14T03:30:32.508Z",
+      "categories": {
+        "salary": 0,
+        "bonus": 0,
+        "rent": 0,
+        "food": 0,
+        "transport": 0,
+        "utilities": 0,
+        "entertainment": 0,
+        "others": 0
+      },
+      "investmentDetails": {
+        "stocks": 0,
+        "funds": 0,
+        "deposits": 0
+      }
+    },
+    {
+      "id": "1736992185811",
+      "userId": "1736992182865",
+      "year": 2024,
+      "month": 12,
+      "disposableIncome": 0,
+      "totalIncome": 0,
+      "totalExpenses": 0,
+      "savings": 0,
+      "investments": 0,
+      "createdAt": "2025-01-16T01:49:45.811Z",
+      "categories": {
+        "salary": 0,
+        "bonus": 0,
+        "rent": 0,
+        "food": 0,
+        "transport": 0,
+        "utilities": 0,
+        "entertainment": 0,
+        "others": 0
+      },
+      "investmentDetails": {
+        "stocks": 0,
+        "funds": 0,
+        "deposits": 0
+      }
+    },
+    {
+      "id": "1736992185813",
+      "userId": "1736992182865",
+      "year": 2025,
+      "month": 1,
+      "disposableIncome": 0,
+      "totalIncome": 0,
+      "totalExpenses": 0,
+      "savings": 0,
+      "investments": 0,
+      "createdAt": "2025-01-16T01:49:45.813Z",
+      "categories": {
+        "salary": 0,
+        "bonus": 0,
+        "rent": 0,
+        "food": 0,
+        "transport": 0,
+        "utilities": 0,
+        "entertainment": 0,
+        "others": 0
+      },
+      "investmentDetails": {
+        "stocks": 0,
+        "funds": 0,
+        "deposits": 0
+      }
+    },
+    {
+      "id": "1737127248175",
+      "userId": "1737127247208",
+      "year": 2024,
+      "month": 12,
+      "disposableIncome": 0,
+      "totalIncome": 0,
+      "totalExpenses": 0,
+      "savings": 0,
+      "investments": 0,
+      "createdAt": "2025-01-17T15:20:48.175Z",
+      "categories": {
+        "salary": 0,
+        "bonus": 0,
+        "rent": 0,
+        "food": 0,
+        "transport": 0,
+        "utilities": 0,
+        "entertainment": 0,
+        "others": 0
+      },
+      "investmentDetails": {
+        "stocks": 0,
+        "funds": 0,
+        "deposits": 0
+      }
+    },
+    {
+      "id": "1737127248175",
+      "userId": "1737127247208",
+      "year": 2025,
+      "month": 1,
+      "disposableIncome": 0,
+      "totalIncome": 0,
+      "totalExpenses": 0,
+      "savings": 0,
+      "investments": 0,
+      "createdAt": "2025-01-17T15:20:48.175Z",
+      "categories": {
+        "salary": 0,
+        "bonus": 0,
+        "rent": 0,
+        "food": 0,
+        "transport": 0,
+        "utilities": 0,
+        "entertainment": 0,
+        "others": 0
+      },
+      "investmentDetails": {
+        "stocks": 0,
+        "funds": 0,
+        "deposits": 0
+      }
+    }
+  ]
+}
