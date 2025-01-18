@@ -17,7 +17,7 @@ npm-debug.log*
 .idea/
 
 # Database
-db/*.json
+#db/*.json
 !db/.gitkeep
 
 # Testing
