@@ -21,6 +21,7 @@ import Image from 'next/image';
 import { LoadingOverlay } from "@/components/loading-overlay"
 import { BoardCarousel } from "@/components/board-carousel"
 import { ShoppingComparison } from "@/components/shopping-comparison"
+import {mockItems} from '@/components/mock-data'
 
 // 将 remindText 移到顶部并格式化
 const remindText = `你是一个专业的财务分析和决策支持AI系统。你将接收用户的财务支出申请，并提供全面、多维度的分析报告。
@@ -710,7 +711,7 @@ export default function AIEvaluationPage({ params }: { params: { id: string } })
                 <h3 className="text-lg font-semibold text-gray-900">该金额可以买到什么</h3>
               </div>
             </div>
-            <ShoppingComparison items={shoppingItems} />
+            <ShoppingComparison items={mockItems} />
           </CardContent>
         </Card>
 

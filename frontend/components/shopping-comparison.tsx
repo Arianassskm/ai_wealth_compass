@@ -40,18 +40,19 @@ export function ShoppingComparison({ items }: ShoppingComparisonProps) {
 
   const total = items
     .filter(item => selectedItems.includes(item.category))
-    .reduce((sum, item) => sum + (parseFloat(item.price?.replace(/[^\d.]/g, '') || '0')), 0)
+    .reduce((sum, item) => sum + (parseFloat(item.price?.replace(/[¥,]/g, '') || '0')), 0)
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2 bg-white rounded-lg">
+     
       {items.map((item, index) => (
-        <div key={index} className="flex items-start space-x-4 p-4 bg-white rounded-lg border border-gray-100">
+        <div key={index} className="flex items-start space-x-3 py-4 border-b border-gray-100 last:border-0">
           <Checkbox
             checked={selectedItems.includes(item.category)}
-            onChange={() => toggleItem(item.category)}
+            onClick={() => toggleItem(item.category)}
             className="mt-1"
           />
-          <div className="w-16 h-16 relative rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
+          <div className="w-20 h-20 relative rounded overflow-hidden bg-gray-50 flex items-center justify-center">
             {imageError[item.category] ? (
               <ImageIcon className="w-6 h-6 text-gray-400" />
             ) : (
@@ -66,11 +67,11 @@ export function ShoppingComparison({ items }: ShoppingComparisonProps) {
           </div>
           <div className="flex-1 min-w-0">
             <h4 className="font-medium text-gray-900 mb-1">{item.category}</h4>
-            <p className="text-sm text-gray-500">{item.quantity}</p>
+            <p className="text-sm text-gray-500 mb-2">{item.quantity}</p>
             {item.tags && (
-              <div className="flex flex-wrap gap-2 mt-2">
+              <div className="flex flex-wrap gap-2">
                 {item.tags.map((tag, i) => (
-                  <span key={i} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-50 text-blue-600">
+                  <span key={i} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-blue-50 text-blue-600">
                     {tag}
                   </span>
                 ))}
@@ -85,15 +86,18 @@ export function ShoppingComparison({ items }: ShoppingComparisonProps) {
           </div>
         </div>
       ))}
-      
+
       {selectedItems.length > 0 && (
-        <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-sm text-gray-600">已选 {selectedItems.length} 件</span>
-            <span className="text-lg font-medium text-blue-600">¥{total.toFixed(2)}</span>
+        <div className="mt-4 space-y-3">
+          <div className="flex justify-between items-center text-sm">
+            <div className="text-gray-500">
+              已选 <span className="text-gray-900">{selectedItems.length}</span> 件
+            </div>
+            <div className="text-xl font-medium text-blue-600">
+              ¥{total.toFixed(2)}
+            </div>
           </div>
-          <Button className="w-full" size="lg">
-            <ShoppingCart className="mr-2 h-4 w-4" />
+          <Button className="w-full bg-pink-500 hover:bg-pink-600" size="lg">
             去抖音商城购买
           </Button>
         </div>
