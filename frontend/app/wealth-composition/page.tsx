@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { useState, useEffect, useRef } from 'react'
 import React from 'react'
@@ -21,6 +21,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
+import { AssetCard } from "@/components/asset-card"
+import { SummaryCard } from "@/components/summary-card"
+import { Asset, AssetSummary } from "../../types/asset"
 
 interface WealthComponent {
  id: string;
@@ -49,10 +52,100 @@ interface EditingState {
   field: 'name' | 'value' | null;
 }
 
+const mockAssets: Asset[] = [
+  {
+    id: '1',
+    name: '即梦会员',
+    category: '软件订阅',
+    price: 199,
+    dailyDepreciation: 0.55,
+    purchaseDate: '2024-01-01',
+    expiryDate: '2024-12-31',
+    status: '使用中',
+    usageCount: 15,
+    icon: '/placeholder.svg?height=32&width=32',
+    secondHandPrice: 85,
+    discount: 0.15
+  },
+  {
+    id: '2',
+    name: '扣子专业版',
+    category: '软件订阅',
+    price: 1,
+    dailyDepreciation: 0.02,
+    purchaseDate: '2024-01-15',
+    expiryDate: '2025-01-14',
+    status: '使用中',
+    usageCount: 1,
+    icon: '/placeholder.svg?height=32&width=32',
+    secondHandPrice: 0.5,
+    discount: 0.5
+  },
+  {
+    id: '3',
+    name: '苹果M4pro',
+    category: '电脑',
+    price: 15999,
+    dailyDepreciation: 13.15,
+    purchaseDate: '2024-03-01',
+    status: '使用中',
+    usageCount: 1,
+    icon: '/placeholder.svg?height=32&width=32',
+    secondHandPrice: 13500,
+  },
+  {
+    id: '4',
+    name: 'iPhone14promax',
+    category: '手机',
+    price: 7999,
+    dailyDepreciation: 6.58,
+    purchaseDate: '2023-09-15',
+    status: '使用中',
+    usageCount: 123,
+    icon: '/placeholder.svg?height=32&width=32',
+    secondHandPrice: 6200
+  },
+  {
+    id: '5',
+    name: 'Surface Book 2',
+    category: '电脑',
+    price: 8999,
+    dailyDepreciation: 7.40,
+    purchaseDate: '2023-06-01',
+    status: '使用中',
+    usageCount: 228,
+    icon: '/placeholder.svg?height=32&width=32',
+    secondHandPrice: 5800
+  },
+  {
+    id: '6',
+    name: 'AirPods 3',
+    category: '配件',
+    price: 1099,
+    dailyDepreciation: 0.90,
+    purchaseDate: '2023-12-01',
+    status: '使用中',
+    usageCount: 46,
+    icon: '/placeholder.svg?height=32&width=32',
+    secondHandPrice: 850
+  }
+]
+
+const mockSummary: AssetSummary = {
+  totalAssetValue: 34594,
+  assetCount: 6,
+  dailyDepreciation: 29.40,
+  date: '2025/01/15',
+  recommendedRenewal: 'Surface Book 2'
+}
+
 export default function WealthCompositionPage() {
  const router = useRouter()
  const { token } = useAuthContext()
  const [wealthComponents, setWealthComponents] = useState<WealthComponent[]>([])
+ const [sortBy, setSortBy] = useState<'price' | 'date'>('price')
+ const [filterCategory, setFilterCategory] = useState<string>('all')
+ const [filterStatus, setFilterStatus] = useState<string>('all')
 
  const [editing, setEditing] = useState<EditingState>({ id: null, field: null });
  const inputRef = useRef<HTMLInputElement>(null)
@@ -207,153 +300,64 @@ export default function WealthCompositionPage() {
    }
  };
 
+ const sortedAndFilteredAssets = mockAssets
+   .filter(asset => filterCategory === 'all' || asset.category === filterCategory)
+   .filter(asset => filterStatus === 'all' || asset.status === filterStatus)
+   .sort((a, b) => sortBy === 'price' ? b.price - a.price : new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime())
+
  return (
-   <AssistantLayout
-     title="财富构成"
-     description="查看和管理您的财富组成"
-     avatarSrc="/images/placeholder.svg"
-     onBack={() => router.push('/')}
-     sections={[
-       {
-         id: 'wealth-overview',
-         title: '财富概览',
-         content: (
-           <motion.div 
-             className="space-y-4"
-             initial={{ opacity: 0, y: 20 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.5 }}
-           >
-             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-               <div className="text-left">
-                 <p className="text-lg font-semibold text-gray-700">总资产</p>
-                 <motion.p 
-                   className="text-3xl font-bold text-blue-600"
-                   initial={{ scale: 0.5 }}
-                   animate={{ scale: 1 }}
-                   transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                 >
-                   ¥{totalAssetValue.toLocaleString()}
-                 </motion.p>
-               </div>
-               <div className="w-full sm:w-[300px] h-[300px]">
-                 <ResponsiveContainer width="100%" height="100%">
-                   <PieChart>
-                     <Pie
-                       data={wealthComponents}
-                       dataKey="value"
-                       nameKey="name"
-                       cx="50%"
-                       cy="50%"
-                       outerRadius={100}
-                       label={({ name, value }) => `${name} ${formatPercentage(value, totalAssetValue)}`}
-                     >
-                       {wealthComponents.map((entry, index) => (
-                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                       ))}
-                     </Pie>
-                     <Tooltip 
-                       formatter={(value: number) => `¥${value.toLocaleString()}`}
-                     />
-                     <Legend />
-                   </PieChart>
-                 </ResponsiveContainer>
-               </div>
-             </div>
-           </motion.div>
-         ),
-         defaultOpen: true,
-       },
-       {
-         id: 'wealth-details',
-         title: '财富明细',
-         content: (
-           <div className="space-y-6">
-             {wealthComponents.map((component, index) => (
-               <motion.div 
-                 key={component.id} 
-                 className="space-y-2"
-                 initial={{ opacity: 0, x: -20 }}
-                 animate={{ opacity: 1, x: 0 }}
-                 transition={{ duration: 0.3, delay: index * 0.1 }}
-               >
-                 <Card className="p-4">
-                   <div className="flex justify-between items-center mb-4" onClick={(e) => e.stopPropagation()}>
-                     <div className="flex items-center gap-2">
-                       {React.createElement(icons[component.icon], { className: "w-5 h-5 text-gray-600" })}
-                       {editing.id === component.id && editing.field === 'name' ? (
-                         <Input
-                           ref={inputRef}
-                           type="text"
-                           value={component.name}
-                           onChange={(e) => handleUpdateComponent(component.id, { name: e.target.value })}
-                           onBlur={() => handleBlur('name')}
-                           className="w-32"
-                         />
-                       ) : (
-                         <h3 
-                           className="font-semibold text-lg text-gray-900 cursor-pointer" 
-                           onClick={() => setEditing({ id: component.id, field: 'name' })}
-                         >
-                           {component.name}
-                         </h3>
-                       )}
-                     </div>
-                     <div className="flex items-center gap-2">
-                       {editing.id === component.id && editing.field === 'value' ? (
-                         <Input
-                           type="number"
-                           value={component.value}
-                           onChange={(e) => {
-                             const newValue = e.target.value === '' ? 0 : parseFloat(e.target.value);
-                             handleUpdateComponent(component.id, { value: newValue });
-                           }}
-                           onBlur={() => handleBlur('value')}
-                           className="w-32 text-right"
-                         />
-                       ) : (
-                         <p 
-                           className="text-xl font-bold cursor-pointer"
-                           onClick={() => setEditing({ id: component.id, field: 'value' })}
-                         >
-                           ¥{component.value.toLocaleString()}
-                         </p>
-                       )}
-                       <Button variant="ghost" size="sm" onClick={() => handleDeleteComponent(component.id)}>
-                         <Trash2 className="w-4 h-4 text-red-500" />
-                       </Button>
-                     </div>
-                   </div>
-                   <div className="space-y-2">
-                     <div className="flex justify-between text-sm text-gray-600">
-                       <span>占总资产比例</span>
-                       <span>{formatPercentage(component.value, totalAssetValue)}</span>
-                     </div>
-                     <Progress value={(component.value / totalAssetValue) * 100} className="h-2" />
-                   </div>
-                 </Card>
-               </motion.div>
-             ))}
-             <Button onClick={handleAddComponent} className="w-full mb-4">
-               <Plus className="w-4 h-4 mr-2" />
-               添加其他资产
-             </Button>
-             <div className="flex justify-end">
-               <Button 
-                 onClick={handleSaveAll}
-                 className="bg-primary hover:bg-primary/90 text-primary-foreground transition-colors flex items-center gap-2 px-4 py-2 rounded-md"
-               >
-                 <Save className="w-4 h-4" />
-                 保存更改
-               </Button>
-             </div>
-           </div>
-         ),
-         defaultOpen: true,
-       },
-     ]}
-   >
-   </AssistantLayout>
+   <div className="min-h-screen bg-gradient-to-b from-blue-50 to-green-50 text-gray-800">
+     <div className="w-full max-w-[420px] mx-auto px-4 space-y-6 pt-6 pb-20">
+       <SummaryCard summary={mockSummary} onAddAsset={() => {/* 处理添加资产的逻辑 */}} />
+
+       <div className="flex gap-2 overflow-x-auto py-2 -mx-4 px-4">
+         <Button 
+           variant={sortBy === 'price' ? 'default' : 'outline'}
+           onClick={() => setSortBy('price')}
+           size="sm"
+           className="whitespace-nowrap bg-white/80 backdrop-blur-md text-gray-800 hover:bg-white/90 border border-gray-200"
+         >
+           价格降序 ▼
+         </Button>
+         <Button 
+           variant={filterCategory === 'all' ? 'default' : 'outline'}
+           onClick={() => setFilterCategory('all')}
+           size="sm"
+           className="whitespace-nowrap bg-white/80 backdrop-blur-md text-gray-800 hover:bg-white/90 border border-gray-200"
+         >
+           全部类别
+         </Button>
+         <Button 
+           variant={filterStatus === 'all' ? 'default' : 'outline'}
+           onClick={() => setFilterStatus('all')}
+           size="sm"
+           className="whitespace-nowrap bg-white/80 backdrop-blur-md text-gray-800 hover:bg-white/90 border border-gray-200"
+         >
+           全部状态
+         </Button>
+       </div>
+
+       <div className="space-y-4">
+         {sortedAndFilteredAssets.map(asset => (
+           <AssetCard key={asset.id} asset={asset} />
+         ))}
+       </div>
+
+       <Button onClick={handleAddComponent} className="w-full mb-4">
+         <Plus className="w-4 h-4 mr-2" />
+         添加其他资产
+       </Button>
+       <div className="flex justify-end">
+         <Button 
+           onClick={handleSaveAll}
+           className="bg-primary hover:bg-primary/90 text-primary-foreground transition-colors flex items-center gap-2 px-4 py-2 rounded-md"
+         >
+           <Save className="w-4 h-4" />
+           保存更改
+         </Button>
+       </div>
+     </div>
+   </div>
  )
 }
 
