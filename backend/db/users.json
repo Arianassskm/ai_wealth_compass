@@ -326,6 +326,211 @@
         },
         "last_updated": "2025-01-17T15:20:47.208Z"
       }
+    },
+    {
+      "id": "1737222990061",
+      "email": "wangwu@dy.com",
+      "password": "$2a$10$3ySjSyZeozROT4sDJWtl/.PXIADRNGnKtLfLhxFhEtxvSfMcYMdDm",
+      "name": "王武",
+      "avatar": "/placeholder.svg",
+      "necessary_expenses": 0,
+      "life_stage": "奋斗期",
+      "basic_salary": 0,
+      "age_group": "26-35",
+      "gender": "",
+      "employment_status": "未知",
+      "estimated_monthly_income": 0,
+      "monthly_expenses": 0,
+      "savings": 0,
+      "debt_amount": 0,
+      "debt_type": [],
+      "assets": {
+        "cash": 0,
+        "stock": 0,
+        "fund": 0,
+        "insurance": 0,
+        "real_estate": 0,
+        "other": 0
+      },
+      "risk_tolerance": "moderate",
+      "investment_experience": "beginner",
+      "preferred_investment_types": [],
+      "investment_horizon": "medium",
+      "short_term_goal": "",
+      "mid_term_goal": "",
+      "long_term_goal": "",
+      "monthly_investment_amount": 0,
+      "expected_return_rate": 0,
+      "risk_score": 0,
+      "investment_advice": "",
+      "portfolio_suggestion": {
+        "cash": 0,
+        "bond": 0,
+        "stock": 0,
+        "gold": 0,
+        "real_estate": 0
+      },
+      "createdAt": "2025-01-18T17:56:30.061Z",
+      "updatedAt": "2025-01-18T17:56:30.061Z",
+      "lastAssessmentAt": "2025-01-18T17:56:30.061Z",
+      "financial_status": "",
+      "housing_status": "",
+      "lifestyle_status": "",
+      "aiConfig": {
+        "model": "gpt-3.5-turbo",
+        "temperature": 0.7,
+        "maxTokens": 2000,
+        "topP": 0.9,
+        "frequencyPenalty": 0.5,
+        "presencePenalty": 0.5,
+        "systemPrompt": "我是您的智能理财助手，可以为您提供个性化的理财建议。"
+      },
+      "ai_evaluation_details": {
+        "budget_settings": {
+          "total_budget": 0,
+          "categories": [],
+          "monthly_budget": {
+            "income": 0,
+            "expenses": {
+              "fixed": {},
+              "variable": {},
+              "savings": 0
+            },
+            "current_month": "2025-01",
+            "history": []
+          }
+        },
+        "wealth_composition": {
+          "last_updated": "2025-01-18T17:56:30.061Z",
+          "components": [],
+          "analysis": {
+            "risk_score": 0,
+            "diversification_score": 0,
+            "liquidity_score": 0,
+            "recommendations": []
+          }
+        },
+        "last_updated": "2025-01-18T17:56:30.061Z"
+      }
+    },
+    {
+      "id": "1737223116248",
+      "email": "wangwu1@dy.com",
+      "password": "$2a$10$aLIf4ITfqSoD6v/LpqwWnernIPdcTMJ9/YKYtTgdVeh1cUWKcZaSy",
+      "name": "王五",
+      "avatar": "/placeholder.svg",
+      "necessary_expenses": 10000,
+      "life_stage": "career_growth",
+      "basic_salary": 20000,
+      "age_group": "90后",
+      "gender": "male",
+      "employment_status": "朝九晚五",
+      "estimated_monthly_income": 20000,
+      "monthly_expenses": 8000,
+      "savings": 100000,
+      "debt_amount": 0,
+      "debt_type": [],
+      "assets": {
+        "cash": 0,
+        "stock": 0,
+        "fund": 0,
+        "insurance": 0,
+        "real_estate": 0,
+        "other": 0
+      },
+      "risk_tolerance": "moderate",
+      "investment_experience": "beginner",
+      "preferred_investment_types": [],
+      "investment_horizon": "medium",
+      "short_term_goal": "",
+      "mid_term_goal": "",
+      "long_term_goal": "",
+      "monthly_investment_amount": 0,
+      "expected_return_rate": 0,
+      "risk_score": 60,
+      "investment_advice": "专注事业发展和晋升。可以考虑配置一些进取型投资产品。 可以采取相对积极的投资策略，增加权益类资产的配置比例。建议关注优质成长股和行业龙头。",
+      "portfolio_suggestion": {
+        "cash": 10,
+        "bond": 20,
+        "stock": 50,
+        "gold": 10,
+        "real_estate": 10
+      },
+      "createdAt": "2025-01-18T17:58:36.248Z",
+      "updatedAt": "2025-01-18T17:59:36.563Z",
+      "lastAssessmentAt": "2025-01-18T17:59:04.399Z",
+      "financial_status": "小有盈余",
+      "housing_status": "蜗居生活",
+      "lifestyle_status": "勤俭持家",
+      "aiConfig": {
+        "model": "gpt-3.5-turbo",
+        "temperature": 0.7,
+        "maxTokens": 2000,
+        "topP": 0.9,
+        "frequencyPenalty": 0.5,
+        "presencePenalty": 0.5,
+        "systemPrompt": "我是您的智能理财助手，可以为您提供个性化的理财建议。"
+      },
+      "ai_evaluation_details": {
+        "budget_settings": {
+          "total_budget": 10000,
+          "categories": [
+            {
+              "name": "生活必需品",
+              "percentage": 63,
+              "color": "rgb(255, 99, 132)",
+              "amount": 6300
+            },
+            {
+              "name": "娱乐",
+              "percentage": 14.8,
+              "color": "rgb(54, 162, 235)",
+              "amount": 1480
+            },
+            {
+              "name": "储蓄",
+              "percentage": 14.8,
+              "color": "rgb(255, 206, 86)",
+              "amount": 1480
+            },
+            {
+              "name": "其他",
+              "percentage": 7.4,
+              "color": "rgb(75, 192, 192)",
+              "amount": 740
+            }
+          ],
+          "monthly_budget": {
+            "income": 20000,
+            "expenses": {
+              "fixed": {
+                "housing": 3000,
+                "utilities": 500,
+                "transportation": 1000
+              },
+              "variable": {
+                "food": 2000,
+                "entertainment": 1500,
+                "shopping": 1000
+              },
+              "savings": 1000
+            },
+            "current_month": "2025-01",
+            "history": []
+          }
+        },
+        "wealth_composition": {
+          "last_updated": "2025-01-18T17:58:36.248Z",
+          "components": [],
+          "analysis": {
+            "risk_score": 0,
+            "diversification_score": 0,
+            "liquidity_score": 0,
+            "recommendations": []
+          }
+        },
+        "last_updated": "2025-01-18T17:59:36.563Z"
+      }
     }
   ]
 }

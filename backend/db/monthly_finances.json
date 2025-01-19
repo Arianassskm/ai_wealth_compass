@@ -188,6 +188,60 @@
         "funds": 0,
         "deposits": 0
       }
+    },
+    {
+      "id": "1737223145293",
+      "userId": "1737223116248",
+      "year": 2024,
+      "month": 12,
+      "disposableIncome": 0,
+      "totalIncome": 0,
+      "totalExpenses": 0,
+      "savings": 0,
+      "investments": 0,
+      "createdAt": "2025-01-18T17:59:05.293Z",
+      "categories": {
+        "salary": 0,
+        "bonus": 0,
+        "rent": 0,
+        "food": 0,
+        "transport": 0,
+        "utilities": 0,
+        "entertainment": 0,
+        "others": 0
+      },
+      "investmentDetails": {
+        "stocks": 0,
+        "funds": 0,
+        "deposits": 0
+      }
+    },
+    {
+      "id": "1737223145293",
+      "userId": "1737223116248",
+      "year": 2025,
+      "month": 1,
+      "disposableIncome": 0,
+      "totalIncome": 0,
+      "totalExpenses": 0,
+      "savings": 0,
+      "investments": 0,
+      "createdAt": "2025-01-18T17:59:05.293Z",
+      "categories": {
+        "salary": 0,
+        "bonus": 0,
+        "rent": 0,
+        "food": 0,
+        "transport": 0,
+        "utilities": 0,
+        "entertainment": 0,
+        "others": 0
+      },
+      "investmentDetails": {
+        "stocks": 0,
+        "funds": 0,
+        "deposits": 0
+      }
     }
   ]
 }
