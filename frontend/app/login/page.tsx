@@ -39,7 +39,7 @@ export default function LoginPage() {
 
       setToken(data.data.token)
       toast.success(isLogin ? '登录成功' : '注册成功')
-      router.push('/profile')
+      router.push('/onboarding')
     } catch (error) {
       toast.error(error instanceof Error ? error.message : '操作失败')
     }
